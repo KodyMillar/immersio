@@ -21,7 +21,6 @@ npm install
 ```
 **Step 4:** Create a `.env` file in the `my-express` folder and add the following lines:
 ```ini
-PORT=8000
 DATABASE_URL=""
 ```
 Replace the placeholders with your actual configuration values.

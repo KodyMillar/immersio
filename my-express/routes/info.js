@@ -1,31 +1,41 @@
 const express = require('express')
 const router = express.Router()
+const Activity = require('../models/activity')
 
-router.get('/', (req, res) => {
-    let info = []
-    db.collection('info')
-        .find()
-        .sort({ user_name: 1 })
-        .forEach(a => info.push(a))
-        .then(() => {
-            res.status(200).json(info)
-        })
-        .catch(() => {
-            res.status(500).json({ error: 'Could not find the documents' })
-        })
+// Get all activities data
+router.get('/', async (req, res) => {
+    try {
+        const activity = await Activity.find()
+        res.json(activity)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
 })
 
-router.post('/', (req, res) => {
-    const info = req.body
-
-    db.collection('info')
-        .insertOne(info)
-        .then(result => {
-            res.status(201).json(result)
+// Create a new activity
+router.post('/', async (req, res) => {
+    try {
+        const activity = new Activity({
+            userId: req.body.userId,
+            activity: {
+                timestamp: req.body.activity.timestamp,
+                itemType: req.body.activity.itemType,
+                itemId: req.body.activity.itemId,
+                courseId: req.body.activity.courseId,
+                lessonId: req.body.activity.lessonId,
+                activityDetails: {
+                    activityType: req.body.activity.activityDetails.activityType,
+                    activityResponse: req.body.activity.activityDetails.activityResponse
+                }
+            }
         })
-        .catch(err => {
-            res.status(500).json({ err: 'Could not add a user_info' })
-        })
+        const newActivity = await activity.save()
+        res.status(201).json(newActivity)
+    } catch (err) {
+        res.status(400).json({ message: err.message })
+    } 
 })
+
 
 module.exports = router
+

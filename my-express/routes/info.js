@@ -1,12 +1,22 @@
 const express = require('express')
 const router = express.Router()
 const Activity = require('../models/activity')
+const mongodb = require("mongodb")
 
 // Get all activities data
 router.get('/', async (req, res) => {
     try {
         const activity = await Activity.find()
         res.json(activity)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+router.get('/getByItem/:itemId', async (req, res) => {
+    try {
+        const activity = await Activity.find( { "activity.itemId" : req.params.itemId })
+        return res.json(activity)
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
@@ -44,8 +54,9 @@ router.post('/', async (req, res) => {
 // Delete an activity
 router.delete('/:id', async(req, res) => {
     try {
-        const result = await Activity.findByIdAndDelete(req.params.id)[[]]
-        if (res.activity == null) {
+        // const result = await Activity.findByIdAndDelete(req.params.id)[[]]
+        const result = await Activity.findByIdAndDelete(req.params.id)
+        if (result == null) {
             return res.status(404).json({ message: 'Cannot find activity' })
         }
         res.json({ message: 'Deleted activity' })

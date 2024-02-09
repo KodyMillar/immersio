@@ -4,10 +4,10 @@
 
 Description of the project
 
-## Setup Steps
+## Express Setup Steps
 
-**Step 1:** Install Node.js and MongoDB  
-Ensure that both Node.js and MongoDB are installed on your system. These are essential for running and managing the application.
+**Step 1:** Install Node.js and Setup MongoDB Atlas
+Ensure that both Node.js and MongoDB are set up as these are essential for running and managing the application.
 
 **Step 2:** Change Directory  
 Navigate to the `my-express-app` folder:

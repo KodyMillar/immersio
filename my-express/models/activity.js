@@ -7,7 +7,7 @@ const activitySchema = new mongoose.Schema({
     },
     activity: {
         timestamp: {
-            type: Number,
+            type: String,
             required: true
         },
         itemType: {

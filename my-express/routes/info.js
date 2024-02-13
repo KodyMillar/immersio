@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
     }
 })
 
+// Get all activities that match the given itemId
 router.get('/getByItem/:itemId', async (req, res) => {
     try {
         const activity = await Activity.find( { "activity.itemId" : req.params.itemId })
@@ -33,14 +34,17 @@ router.post('/', async (req, res) => {
         const activity = new Activity({
             userId: req.body.userId,
             activity: {
-                timestamp: req.body.activity.timestamp,
-                itemType: req.body.activity.itemType,
-                itemId: req.body.activity.itemId,
-                courseId: req.body.activity.courseId,
-                lessonId: req.body.activity.lessonId,
-                activityDetails: {
-                    activityType: req.body.activity.activityDetails.activityType,
-                    activityResponse: req.body.activity.activityDetails.activityResponse
+                1: {
+                    courseId: req.body.activity.courseId,
+                    lessonId: req.body.activity.lessonId,
+                    itemId: req.body.activity.itemId,
+                    itemType: req.body.activity.itemType,
+                    details: {
+                        timestamp: req.body.activity.details.timestamp,
+                        activityType: req.body.activity.details.activityType,
+                        timeSpent: req.body.activity.details.timeSpent,
+                        activityResponse: req.body.activity.details.activityResponse
+                    }
                 }
             }
         })
@@ -49,6 +53,12 @@ router.post('/', async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message })
     } 
+})
+
+// Update an activity response for a certain activity
+router.post("/update/:id", async (req, res) => {
+    const newResponse = req.body.activityReponse
+    await Activity.updateOne({ _id: req.params.id }, { $set: { "activity.activityDetails.activityReponse": newResponse }})
 })
 
 // Delete an activity

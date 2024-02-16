@@ -26,9 +26,9 @@ const activitySchema = new mongoose.Schema({
         details: {
             "1": {
                 timestamp: {
-                    type: Date,
-                    set: date => new Date(date).getTime(),
-                    required: true
+                    type: Number,
+                    default: Date.now(),
+                    required: true,
                 },
                 activityType: {
                     type: String,

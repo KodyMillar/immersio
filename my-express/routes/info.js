@@ -34,16 +34,16 @@ router.post('/', async (req, res) => {
         const activity = new Activity({
             userId: req.body.userId,
             activity: {
-                1: {
-                    courseId: req.body.activity.courseId,
-                    lessonId: req.body.activity.lessonId,
-                    itemId: req.body.activity.itemId,
-                    itemType: req.body.activity.itemType,
-                    details: {
-                        timestamp: req.body.activity.details.timestamp,
-                        activityType: req.body.activity.details.activityType,
-                        timeSpent: req.body.activity.details.timeSpent,
-                        activityResponse: req.body.activity.details.activityResponse
+                courseId: req.body.activity.courseId,
+                lessonId: req.body.activity.lessonId,
+                itemId: req.body.activity.itemId,
+                itemType: req.body.activity.itemType,
+                details: {
+                    "1": {
+                        timestamp: req.body.activity.details["1"].timestamp,
+                        activityType: req.body.activity.details["1"].activityType,
+                        timeSpent: req.body.activity.details["1"].timeSpent,
+                        activityResponse: req.body.activity.details["1"].activityResponse
                     }
                 }
             }
@@ -51,7 +51,12 @@ router.post('/', async (req, res) => {
         const newActivity = await activity.save()
         res.status(201).json(newActivity)
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        if (err instanceof TypeError) {
+            res.status(400).send("Incorrect value types")
+        }
+        else {
+            res.status(400).json({ message: err.message })
+        }
     } 
 })
 

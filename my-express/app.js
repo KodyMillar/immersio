@@ -28,6 +28,11 @@ app.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}`)
 // Error Handling Middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    if (err instanceof SyntaxError) {
+        res.status(400).send("Wrong Json Syntax")
+    }
+    else {
+        res.status(500).send('Something broke!');
+    }
 });
 

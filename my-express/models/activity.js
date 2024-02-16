@@ -24,7 +24,7 @@ const activitySchema = new mongoose.Schema({
             required: true
         },
         details: {
-            1: {
+            "1": {
                 timestamp: {
                     type: Date,
                     set: date => new Date(date).getTime(),

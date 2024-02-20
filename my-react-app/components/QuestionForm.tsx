@@ -61,7 +61,6 @@ export default function Question() {
         [latestDetailId]: {
           ...prev.activity.details[latestDetailId],
           activityResponse: type,
-          activityType: 'Question', 
         },
       };
 

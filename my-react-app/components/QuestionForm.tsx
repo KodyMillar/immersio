@@ -10,51 +10,86 @@ export default function Question() {
   const [activity, setActivity] = useState<activityData>({
     userId: '',
     activity: {
-      timestamp: "",
-      itemType: "Lesson",
-      itemId: "A-1",
       courseId: 4640,
       lessonId: 5,
-      activityDetails: {
-        activityType: "",
-        activityResponse: "",
-      }
-    }
-  });
-
-  function handleResponse(type: string) {
-    setActivity(prev => ({
-      ...prev,
-      activity: {
-        ...prev.activity,
-        activityDetails: {
-          activityType: "Question",
-          activityResponse: type,
+      itemId: "A-1",
+      itemType: "Vocabulary",
+      details: {
+        1: {
+          timestamp: Date.now(),
+          activityType: 'Answer',
+          timeSpent: 0, 
+          activityResponse: '', 
         }
       }
-    }));
+    }
+  }
+  );
+
+  const[startingTime, setStartingTime] = useState(Date.now());
+
+  function updateActivityTimeSpent(detailId: number) {
+    setActivity(prev => {
+      const startTime  = startingTime;
+      const endTime = Date.now();
+      const timeSpent = endTime - startTime;
+
+      const updatedDetails = {
+        ...prev.activity.details,
+        [detailId]: {
+          ...prev.activity.details[detailId],
+          timeSpent,
+          timestamp: endTime
+        }
+      }
+      return {
+        ...prev,
+        activity: {
+          ...prev.activity,
+          details: updatedDetails
+        }
+      }
+    })
+  }
+
+  function handleResponse(type: string) {
+    const latestDetailId = Object.keys(activity.activity.details).length;
+    // @ts-ignore
+    setActivity(prev => {
+      const updatedDetails = {
+        ...prev.activity.details,
+        [latestDetailId]: {
+          ...prev.activity.details[latestDetailId],
+          activityResponse: type,
+          activityType: 'Question', 
+        },
+      };
+
+      return {
+        ...prev,
+        activity: {
+          ...prev.activity,
+          details: updatedDetails,
+        },
+      };
+    });
+
+    updateActivityTimeSpent(latestDetailId); 
+    console.log(activity);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const date = new Date();
-    const timestamp = date.toISOString();
     
     const updatedActivity = {
       ...activity,
       activity: {
         ...activity.activity,
-        timestamp
       }
     }
 
     try {
-      const response = await axios.post(`${apiUrl}/info`, updatedActivity)
-      if (response.status === 400) {
-        console.error('Bad request:', response.data)
-      }
-      console.log('Submitted successfully:!')
+      await axios.post(`${apiUrl}/info`, updatedActivity)
     } catch (error) {
         console.error('Error submitting:', error)
       }

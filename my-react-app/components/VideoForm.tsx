@@ -9,17 +9,20 @@ export default function VideoForm() {
     const [activity, setActivity] = useState<activityData>({
         userId: '',
         activity: {
-            timestamp: "",
-            itemType: "Lesson",
-            itemId: "B-2",
-            courseId: 3855,
-            lessonId: 4,
-            activityDetails: {
-                activityType: "",
-                activityResponse: "",
+          courseId: 3855,
+          lessonId: 2,
+          itemId: "B-2",
+          itemType: "Video",
+          details: {
+            1: {
+              timestamp: Date.now(),
+              activityType: 'Play',
+              timeSpent: 0, 
+              activityResponse: '', 
             }
+          }
         }
-    });
+      });
 
     function handleResponse(type: string) {
         setActivity(prev => ({

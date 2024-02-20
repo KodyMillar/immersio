@@ -88,7 +88,8 @@ export default function Question() {
     }
 
     try {
-      await axios.post(`${apiUrl}/info`, updatedActivity)
+      axios.post(`${apiUrl}/info`, updatedActivity)
+      console.log('Activity submitted:', updatedActivity)
     } catch (error) {
         console.error('Error submitting:', error)
       }

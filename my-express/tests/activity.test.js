@@ -13,24 +13,36 @@ describe('Activity Model', () => {
   });
 
   test('should save an activity to the database', async () => {
-    // Sample activity data
-    const sampleActivity = {
-      userId: "user123",
-      activity: {
-          timestamp: Date.now(),
-          itemType: "DRILL",
-          itemId: "absc543ert43iou",
-          courseId: 123,
-          lessonId: 321,
-          activityDetails: {
-              activityType: "START",
-              activityResponse: 'abc'
-          }
-      }
-    };
+    const video = {
+      "userId": "12345",
+      "activity":
+        {
+          "courseId": "12930123",
+          "lessonId": "12839012",
+          "itemId": "absc543ert43iou",
+          "itemType": "Video",
+          "details": {
+            1: 
+              {
+                "timestamp": "1238904801", 
+                "activityType": "Answer",
+                "timeSpent": "00:20:38",
+                "activityResponse": "INCORRECT"
+              },
+            2: 
+              {
+                "timestamp": "1283912302",
+                "activityType": "Answer",
+                "timeSpent": "00:10:19",
+                "videoTimeCode": "1:23",
+                "activityResponse": "PLAY"
+              }
+            }
+        }
+    }
 
     // Save the activity to the database
-    const savedActivity = await Activity.create(sampleActivity);
+    const savedActivity = await Activity.create(video);
 
     // Retrieve the saved activity from the database
     const retrievedActivity = await Activity.findById(savedActivity._id);

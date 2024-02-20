@@ -36,7 +36,7 @@ const activitySchema = new mongoose.Schema({
                     required: true
                 },
                 timeSpent: {
-                    type: Number,
+                    type: String,
                     required: true
                 },
                 activityResponse: {

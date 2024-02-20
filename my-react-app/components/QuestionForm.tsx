@@ -4,9 +4,9 @@ import activityData from "@/types/activity"
 import { Button } from "./ui/button";
 import axios from "axios";
 
-const apiUrl = "http://localhost:4563"
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export default function Main() {
+export default function Question() {
   const [activity, setActivity] = useState<activityData>({
     userId: '',
     activity: {
@@ -61,7 +61,7 @@ export default function Main() {
   }
 
   return (
-    <main>
+    <div>
       <form
         onSubmit={handleSubmit}
       >
@@ -76,6 +76,7 @@ export default function Main() {
         />
         <div className="m-2 ml-0">
           <Button
+          className="m-2 p-4 ml-4"
             variant="secondary"
             onClick={(e) => {
               e.preventDefault(); 
@@ -84,6 +85,7 @@ export default function Main() {
           > Correct </Button>
 
           <Button
+          className="m-2 p-4"
             variant="destructive"
             onClick={(e) => {
               e.preventDefault();
@@ -92,8 +94,8 @@ export default function Main() {
           > Incorrect </Button>
 
         </div>
-        <Button variant="default" type="submit">Submit</Button>
+        <Button className="m-2 p-4 ml-4" variant="default" type="submit">Submit</Button>
       </form>
-    </main>
+    </div>
   )
 }

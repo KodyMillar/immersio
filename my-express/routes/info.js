@@ -1,12 +1,23 @@
 const express = require('express')
 const router = express.Router()
 const Activity = require('../models/activity')
+const mongodb = require("mongodb")
 
 // Get all activities data
 router.get('/', async (req, res) => {
     try {
         const activity = await Activity.find()
         res.json(activity)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+// Get all activities that match the given itemId
+router.get('/getByItem/:itemId', async (req, res) => {
+    try {
+        const activity = await Activity.find( { "activity.itemId" : req.params.itemId })
+        return res.json(activity)
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
@@ -28,21 +39,29 @@ router.post('/', async (req, res) => {
         const activity = new Activity({
             userId: req.body.userId,
             activity: {
-                timestamp: req.body.activity.timestamp,
-                itemType: req.body.activity.itemType,
-                itemId: req.body.activity.itemId,
                 courseId: req.body.activity.courseId,
                 lessonId: req.body.activity.lessonId,
-                activityDetails: {
-                    activityType: req.body.activity.activityDetails.activityType,
-                    activityResponse: req.body.activity.activityDetails.activityResponse
+                itemId: req.body.activity.itemId,
+                itemType: req.body.activity.itemType,
+                details: {
+                    "1": {
+                        timestamp: req.body.activity.details["1"].timestamp,
+                        activityType: req.body.activity.details["1"].activityType,
+                        timeSpent: req.body.activity.details["1"].timeSpent,
+                        activityResponse: req.body.activity.details["1"].activityResponse
+                    }
                 }
             }
         })
         const newActivity = await activity.save()
         res.status(201).json(newActivity)
     } catch (err) {
-        res.status(400).json({ message: err.message })
+        if (err instanceof TypeError) {
+            res.status(400).send("Incorrect value types")
+        }
+        else {
+            res.status(400).json({ message: err.message })
+        }
     } 
 })
 
@@ -77,12 +96,18 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+// Update an activity response for a certain activity
+router.put("/update/:id", async (req, res) => {
+    const newResponse = req.body.activityResponse
+    await Activity.updateOne({ _id: req.params.id }, { $set: { "activity.activityDetails.activityResponse": newResponse }})
+})
 
 // Delete an activity
 router.delete('/:id', async(req, res) => {
     try {
-        const result = await Activity.findByIdAndDelete(req.params.id)[[]]
-        if (res.activity == null) {
+        // const result = await Activity.findByIdAndDelete(req.params.id)[[]]
+        const result = await Activity.findByIdAndDelete(req.params.id)
+        if (result == null) {
             return res.status(404).json({ message: 'Cannot find activity' })
         }
         res.json({ message: 'Deleted activity' })

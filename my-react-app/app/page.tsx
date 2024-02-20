@@ -1,11 +1,11 @@
 import Navbar from "@/components/Navbar";
-import Main from "@/components/Main";
+import Question from "@/components/QuestionForm";
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <Main />
+      <Question />
     </>
   );
 }

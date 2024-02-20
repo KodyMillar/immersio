@@ -1,15 +1,21 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Activity = require('../models/activity.js');
 
+const { MongoMemoryServer } = require('mongodb-memory-server');
+
+let mongod;
+
 describe('Activity Model', () => {
   beforeAll(async () => {
-    // Connect to MongoDB before running the tests
-    await mongoose.connect('mongodb+srv://tommynguyenvanc:A01336020@Immersio.nmlzvg1.mongodb.net/?retryWrites=true&w=majority');
+    mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    await mongoose.connect(uri);
   });
 
   afterAll(async () => {
-    // Disconnect from MongoDB after running all the tests
     await mongoose.disconnect();
+    await mongod.stop();
   });
 
   test('should save an activity to the database', async () => {
@@ -26,14 +32,14 @@ describe('Activity Model', () => {
               {
                 "timestamp": "1238904801", 
                 "activityType": "Answer",
-                "timeSpent": "00:20:38",
+                "timeSpent": 238023,
                 "activityResponse": "INCORRECT"
               },
             2: 
               {
                 "timestamp": "1283912302",
                 "activityType": "Answer",
-                "timeSpent": "00:10:19",
+                "timeSpent": 2430980234,
                 "videoTimeCode": "1:23",
                 "activityResponse": "PLAY"
               }

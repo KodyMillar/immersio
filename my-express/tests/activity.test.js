@@ -23,16 +23,16 @@ describe('Activity Model', () => {
       "userId": "12345",
       "activity":
         {
-          "courseId": "12930123",
-          "lessonId": "12839012",
+          "courseId": 12930123,
+          "lessonId": 12839012,
           "itemId": "absc543ert43iou",
           "itemType": "Video",
           "details": {
             1: 
               {
-                "timestamp": "1238904801", 
+                "timestamp": 1238904801, 
                 "activityType": "Answer",
-                "timeSpent": 238023,
+                "timeSpent": "238023",
                 "activityResponse": "INCORRECT"
               },
             2: 

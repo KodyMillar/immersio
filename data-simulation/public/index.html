@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Data Generator</title>
+</head>
+<body>
+    <button id="generateButton">Generate User Activity Data</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', () => {
+            fetch('http://localhost:3010/generateData')
+                .then(response => response.json())
+                // display generated data in the website
+                // .then(data => {
+                //     document.getElementById('result').innerText = `
+                //         User ID: ${data.userId}
+                //         Timestamp: ${data.activity.timestamp}
+                //         Item Type: ${data.activity.itemType}
+                //         Couse ID: ${data.activity.courseID}
+                //         Lesson ID: ${data.activity.lessonID}
+                //         Details: ${data.activity.details.activityType}
+                //         Time Spent: ${data.activity.details.timeSpent}
+                //         Response: ${data.activity.details.activityResponse}
+                //     `;
+                // })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

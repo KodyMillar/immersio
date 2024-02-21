@@ -23,6 +23,11 @@ router.get('/getByItem/:itemId', async (req, res) => {
     }
 })
 
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
+    res.json(res.activity)
+})
+
 // Get one activity data
 router.get('/:id', getActivity, (req, res) => {
     res.json(res.activity)
@@ -102,6 +107,7 @@ router.put("/update/:id", async (req, res) => {
     const response = await Activity.updateOne({ _id: req.params.id }, { $set: { "activity.activityDetails.activityResponse": newResponse }})
     res.json(result)
 })
+
 
 // Delete an activity
 router.delete('/:id', async(req, res) => {

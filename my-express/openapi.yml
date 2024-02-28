@@ -1,0 +1,180 @@
+openapi: 3.0.0
+info:
+  title: Activities API
+  description: API for managing activities
+  version: "1.0.0"
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: /info
+    description: Info route options
+paths:
+  /:
+    get:
+      tags:
+        - /info
+      summary: Get all activities data
+      responses:
+        '200':
+          description: A list of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - /info
+      summary: Create a new activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '201':
+          description: New activity created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '400':
+          description: Bad Request
+  /getByItem/{itemId}:
+    get:
+      tags:
+        - /info
+      summary: Get all activities that match the given itemId
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '500':
+          description: Internal Server Error
+  /{id}:
+    get:
+      tags:
+        - /info
+      summary: Get one activity data
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single activity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '404':
+          description: Activity not found
+    put:
+      tags:
+        - /info
+      summary: Update an activity response for a certain activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                activityResponse:
+                  type: string
+      responses:
+        '200':
+          description: Update result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modifiedCount:
+                    type: integer
+    delete:
+      tags:
+        - /info
+      summary: Delete an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity deleted
+        '404':
+          description: Activity not found
+components:
+  schemas:
+    Activity:
+      type: object
+      required:
+        - userId
+        - activity
+      properties:
+        userId:
+          type: string
+        activity:
+          type: object
+          required:
+            - courseId
+            - lessonId
+            - itemId
+            - itemType
+            - details
+          properties:
+            courseId:
+              type: integer
+            lessonId:
+              type: integer
+            itemId:
+              type: string
+            itemType:
+              type: string
+              enum: [Drill, Dialogue, Video, Vocabulary]
+            details:
+              type: object
+              properties:
+                "1":
+                  type: object
+                  required:
+                    - timestamp
+                    - activityType
+                    - timeSpent
+                  properties:
+                    timestamp:
+                      type: integer
+                    activityType:
+                      type: string
+                      enum: [Answer, Play, Pause, Skip, Resume, Restart]
+                    timeSpent:
+                      type: integer
+                    activityResponse:
+                      type: string
+                      default: ""

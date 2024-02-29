@@ -54,7 +54,6 @@ export default function Question() {
 
   function handleResponse(type: string) {
     const latestDetailId = Object.keys(activity.activity.details).length;
-    // @ts-ignore
     setActivity(prev => {
       const updatedDetails = {
         ...prev.activity.details,
@@ -88,7 +87,9 @@ export default function Question() {
     }
 
     try {
-      await axios.post(`${apiUrl}/info`, updatedActivity)
+      axios.post(`${apiUrl}/info`, updatedActivity)
+      setStartingTime(Date.now());
+      console.log('Activity submitted:', updatedActivity)
     } catch (error) {
         console.error('Error submitting:', error)
       }

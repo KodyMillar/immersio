@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
@@ -32,8 +32,6 @@ jobs:
         node .\my-express\models\activity.js
 
     - name: Run Application
-      env:
-        DATABASE_URL: mongodb+srv://tommynguyenvanc:A01336020@Immersio.nmlzvg1.mongodb.net/?retryWrites=true&w=majority
       run: |
         cd my-express
         npm test

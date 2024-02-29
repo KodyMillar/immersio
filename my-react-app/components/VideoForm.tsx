@@ -1,66 +1,84 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import activityData from "@/types/activity"
 import axios from "axios";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function VideoForm() {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const[startingTime, setStartingTime] = useState(Date.now());
     const [activity, setActivity] = useState<activityData>({
-        userId: '',
+        userId: 'Timothy',
         activity: {
-          courseId: 3855,
-          lessonId: 2,
-          itemId: "B-2",
-          itemType: "Video",
-          details: {
-            1: {
-              timestamp: Date.now(),
-              activityType: 'Play',
-              timeSpent: 0, 
-              activityResponse: '', 
-            }
-          }
-        }
-      });
-
-    function handleResponse(type: string) {
-        setActivity(prev => ({
-            ...prev,
-            activity: {
-                ...prev.activity,
-                activityDetails: {
-                    activityType: "Video",
-                    activityResponse: type,
+            courseId: 3855,
+            lessonId: 2,
+            itemId: "B-2",
+            itemType: "Video",
+            details: {
+                1: {
+                    timestamp: Date.now(),
+                    activityType: 'Play',
+                    timeSpent: 0,
+                    activityResponse: 'Recieved',
                 }
             }
-        }));
-    }
-
-    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-
-        const date = new Date();
-        const timestamp = date.toISOString();
-
-        const updatedActivity = {
-            ...activity,
-            activity: {
-                ...activity.activity,
-                timestamp
-            }
         }
+    });
 
+    const handleVideoEvent = (event: any) => {
+        const type = event.type;
+        const endTime = Date.now();
+        const startTime = startingTime;
+        const timeSpent = endTime - startTime;
+    
+        setActivity(prevActivity => {
+            const updatedActivity = {
+                ...prevActivity,
+                activity: {
+                    ...prevActivity.activity,
+                    details: {
+                        ...prevActivity.activity.details,
+                        1: {
+                            timestamp: endTime,
+                            activityType: type.charAt(0).toUpperCase() + type.slice(1),
+                            timeSpent: timeSpent,
+
+                        }
+                    }
+                }
+            };
+            return updatedActivity;
+        });
+        
+        console.log(type)
+        sendActivityUpdate();
+    };
+
+    // Function to send updated activity data to API
+    const sendActivityUpdate = async () => {
         try {
-            const response = await axios.post(`${apiUrl}/info`, updatedActivity)
-            if (response.status === 400) {
-                console.error('Bad request:', response.data)
-            }
-            console.log('Submitted successfully:!')
+            axios.post(`${apiUrl}/info`, activity);
+            setStartingTime(Date.now());
+            console.log(activity);
         } catch (error) {
-            console.error('Error submitting:', error)
+            console.error('Error updating activity:', error);
         }
-    }
+    };
+
+    // Attach event listeners on component mount
+    useEffect(() => {
+        const videoElement = videoRef.current;
+        if (videoElement) {
+            videoElement.addEventListener('play', handleVideoEvent);
+            // Cleanup function to remove event listeners
+            return () => {
+                videoElement.removeEventListener('play', handleVideoEvent);
+            };
+        }
+    }, []);
+
+
 
     return (
         <div>
@@ -68,16 +86,14 @@ export default function VideoForm() {
             <input
                 type="text"
                 value={activity.userId}
-                onChange={e => setActivity(prev => ({ ...prev, userId: e.target.value }))}
+                name="userId"
+                onChange={(e) => setActivity({ ...activity, userId: e.target.value })}
                 className="m-4 p-2 border-2 border-gray-300 rounded-md"
             />
-            <iframe
-                src="https://www.youtube.com/embed/fAQmCNWJHb8"
-                allowFullScreen
-                width={560}
-                height={315}
-                className="p-2 ml-4"
-            />
+            <video ref={videoRef} width="320" height="240" className="p-2 m-2" controls>
+                <source src="/test.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
         </div>
     )
 }

@@ -1,5 +1,27 @@
 const mongoose = require('mongoose');
 
+const detailsSchema = new mongoose.Schema({
+    timestamp: {
+        type: Number,
+        default: Date.now(),
+        required: true,
+    },
+    activityType: {
+        type: String,
+        enum: ['Answer', 'Play', 'Pause', 'Skip', 'Resume', 'Restart'],
+        required: true
+    },
+    timeSpent: {
+        type: Number,
+        required: true
+    },
+    activityResponse: {
+        type: String,
+        required: false,
+        default: ""
+    }
+})
+
 const activitySchema = new mongoose.Schema({
     userId: {
         type: String,
@@ -23,32 +45,8 @@ const activitySchema = new mongoose.Schema({
             enum: ['Drill', 'Dialogue', 'Video', 'Vocabulary'],
             required: true
         },
-        details: {
-            "1": {
-                timestamp: {
-                    type: Number,
-                    default: Date.now(),
-                    required: true,
-                },
-                activityType: {
-                    type: String,
-                    enum: ['Answer', 'Play', 'Pause', 'Skip', 'Resume', 'Restart'],
-                    required: true
-                },
-                timeSpent: {
-                    type: Number,
-                    required: true
-                },
-                activityResponse: {
-                    type: String,
-                    required: false,
-                    default: ""
-                }
-            }
-        }
+        details: [detailsSchema]
     }
 })
 
-
-
-module.exports = mongoose.model('Activity', activitySchema)
+module.exports = mongoose.model('Activity', activitySchema, "activities")

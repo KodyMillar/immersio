@@ -1,12 +1,6 @@
 const mongoose = require('mongoose');
-const route = require('../routes/info.js')
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const Activity = require('../models/activity');
-const express = require('express');
-const app = express();
-
-app.use(express.json());
-app.use('/', route);
 
 let mongod;
 beforeAll(async () => {

@@ -26,11 +26,6 @@ jobs:
         npm install
         npm install dotenv
 
-    - name: Run info.js
-      run: |
-        node .\my-express\routes\info.js
-        node .\my-express\models\activity.js
-
     - name: Run Application
       run: |
         cd my-express

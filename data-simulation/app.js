@@ -1,5 +1,6 @@
 const express = require('express');
 const { faker } = require('@faker-js/faker');
+const path = require('path')
 
 const app = express();
 const port = 3010;
@@ -33,6 +34,11 @@ function generateUserActivity() {
     };
     return data;
 }
+
+app.get('/newpage.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'newpage.html'));
+});
+
 
 setInterval(() => {
     const randomData = generateUserActivity();

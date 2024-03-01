@@ -10,24 +10,18 @@
     <div id="result"></div>
 
     <script>
-        document.getElementById('generateButton').addEventListener('click', () => {
-            fetch('http://localhost:3010/generateData')
-                .then(response => response.json())
-                // display generated data in the website
-                // .then(data => {
-                //     document.getElementById('result').innerText = `
-                //         User ID: ${data.userId}
-                //         Timestamp: ${data.activity.timestamp}
-                //         Item Type: ${data.activity.itemType}
-                //         Couse ID: ${data.activity.courseID}
-                //         Lesson ID: ${data.activity.lessonID}
-                //         Details: ${data.activity.details.activityType}
-                //         Time Spent: ${data.activity.details.timeSpent}
-                //         Response: ${data.activity.details.activityResponse}
-                //     `;
-                // })
-                .catch(error => console.error('Error:', error));
+        document.getElementById('generateButton').addEventListener('click', async () => {
+            try {
+                const newWindow = window.open('newpage.html', '_blank');
+    
+                const response =  fetch('http://localhost:3010/generateData');
+                const data =  response.json();
+    
+            } catch (error) {
+                console.error('Error:', error);
+            }
         });
     </script>
+    
 </body>
 </html>

@@ -2,16 +2,11 @@ const express = require('express')
 const router = express.Router()
 const Activity = require('../models/activity')
 const mongodb = require("mongodb")
-const db = require("../app")
-const activity = require('../models/activity')
-// const activityCollection = Activity.createCollection()
-//     .then((collection) => console.log("created collection"))
 
 // Get all activities data
 router.get('/', async (req, res) => {
     try {
         const activity = await Activity.find()
-        // const collections = db.listCollections()
         res.json(activity)
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -46,30 +41,9 @@ router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
 // Create a new activity
 router.post('/', async (req, res) => {
     try {
-        const newActivity = new Activity(req.body);
-        newActivity.save();
-        res.status(201).json(newActivity);
-        // Activity.findOne({ userId: req.body.userId })
-        //     .then(activity => {
-        //         if (activity) {
-        //             // activity.message = "success"
-        //             Activity.updateOne({ userId: "9000" }, { $set: { lessonId: 1000 } })
-        //                 .then(() => {
-        //                     console.log(db.listCollections())
-        //                     res.status(201).send("good")
-        //                 })
-        //             // const update = activity.update({ userId: "9002"})
-        //             //     .then((activity) => {
-        //             //         res.status(201).json(activity)
-        //             //     })
-        //         } else {
-        //             const newActivity = new Activity(req.body);
-        //             newActivity.save();
-        //             res.status(201).json(newActivity);
-        //         }
-        //     })
-        //     .catch(err => console.log(err))
-        // const collections = db.
+        const activity = new Activity(req.body)
+        const newActivity = await activity.save()
+        res.status(201).json(newActivity)
     } catch (err) {
         if (err instanceof TypeError) {
             res.status(400).send("Incorrect value types")
@@ -78,23 +52,6 @@ router.post('/', async (req, res) => {
             res.status(400).json({ message: err.message })
         }
     } 
-})
-
-router.put('/', async (req, res) => {
-    try {
-        await Activity.updateOne(
-            { "userId": req.body.userId, "activity.itemId": req.body.activity.itemId },
-            { $push: { "activity.details" : {
-                "activityType": "Answer",
-				"timeSpent": 125,
-				"activityResponse": "CORRECT"
-            } }},
-            { upsert: true }
-            )
-        res.status(201).send("Success!")
-    } catch(err) {
-        res.status(400).json({ message: err.message })
-    }
 })
 
 router.put('/', async (req, res) => {
@@ -156,7 +113,7 @@ router.put("/update/:id", async (req, res) => {
 
 
 // Delete an activity
-router.delete('/delete/:id', async(req, res) => {
+router.delete('/:id', async(req, res) => {
     try {
         // const result = await Activity.findByIdAndDelete(req.params.id)[[]]
         const result = await Activity.findByIdAndDelete(req.params.id)
@@ -169,10 +126,15 @@ router.delete('/delete/:id', async(req, res) => {
     }
 })
 
-router.get('/deleteall', async(req, res) => {
+async function getActivity(req, res, next) {
+    let activity
     try {
-        await Activity.deleteMany({})
-        res.send("All documents have been deleted")
+        activity = await Activity.findById(req.params.id)
+        if (activity == null) {
+            return res.status(404).json({ message: 'Cannot find activity' })
+        }
+    
+
     } catch (err) {
         return res.status(500).json({ message: err.message })
     }

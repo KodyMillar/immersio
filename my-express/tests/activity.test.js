@@ -1,36 +1,54 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Activity = require('../models/activity.js');
 
+const { MongoMemoryServer } = require('mongodb-memory-server');
+
+let mongod;
+
 describe('Activity Model', () => {
   beforeAll(async () => {
-    // Connect to MongoDB before running the tests
-    await mongoose.connect('mongodb+srv://tommynguyenvanc:A01336020@Immersio.nmlzvg1.mongodb.net/?retryWrites=true&w=majority');
+    mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    await mongoose.connect(uri);
   });
 
   afterAll(async () => {
-    // Disconnect from MongoDB after running all the tests
     await mongoose.disconnect();
+    await mongod.stop();
   });
 
   test('should save an activity to the database', async () => {
-    // Sample activity data
-    const sampleActivity = {
-      userId: "user123",
-      activity: {
-          timestamp: Date.now(),
-          itemType: "DRILL",
-          itemId: "absc543ert43iou",
-          courseId: 123,
-          lessonId: 321,
-          activityDetails: {
-              activityType: "START",
-              activityResponse: 'abc'
-          }
-      }
-    };
+    const video = {
+      "userId": "12345",
+      "activity":
+        {
+          "courseId": 12930123,
+          "lessonId": 12839012,
+          "itemId": "absc543ert43iou",
+          "itemType": "Video",
+          "details": {
+            1: 
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+              },
+            2: 
+              {
+                "timestamp": "1283912302",
+                "activityType": "Answer",
+                "timeSpent": 2430980234,
+                "videoTimeCode": "1:23",
+                "activityResponse": "PLAY"
+              }
+            }
+        }
+    }
 
     // Save the activity to the database
-    const savedActivity = await Activity.create(sampleActivity);
+    const savedActivity = await Activity.create(video);
 
     // Retrieve the saved activity from the database
     const retrievedActivity = await Activity.findById(savedActivity._id);

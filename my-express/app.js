@@ -2,6 +2,9 @@ require('dotenv').config()
 
 const express = require('express')
 const cors = require('cors')
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs')
+const swaggerDocument = YAML.load('./openapi.yml')
 const app = express()
 const helmet = require('helmet')
 const mongoose = require('mongoose')
@@ -21,9 +24,10 @@ db.once('open', () => console.log('Connected to DB'))
 // Routes
 const infoRoute = require('./routes/info')
 app.use('/info', infoRoute)
+app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Start the server
-app.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}`))
+app.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}/api`))
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

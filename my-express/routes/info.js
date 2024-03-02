@@ -28,25 +28,20 @@ router.get('/getByItem/:itemId', async (req, res) => {
     }
 })
 
-router.put("/:id", async (req, res) => {
-    try {
-        const id = { _id: req.params.id }
-        const updates = req.body
-        const result = await Activity.findOneAndUpdate(id, { $push: { "activity.details": {
-            "activityType": "Answer",
-            "timeSpent": 125,
-            "activityResponse": "CORRECT"  
-        } }})
-        res.status(201).send(result)
-    } catch (err) {
-        res.status(400).send({ message: err.message })
-    }
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
+    res.json(res.activity)
 })
 
-// // Get one activity data
-// router.get('/:id', getActivity, (req, res) => {
-//     res.json(res.activity)
-// })
+// Get one activity data
+router.get('/:id', getActivity, (req, res) => {
+    res.json(res.activity)
+})
+
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
+    res.json(res.activity)
+})
 
 // Create a new activity
 router.post('/', async (req, res) => {
@@ -102,11 +97,63 @@ router.put('/', async (req, res) => {
     }
 })
 
+router.put('/', async (req, res) => {
+    try {
+        await Activity.updateOne(
+            { "userId": req.body.userId, "activity.itemId": req.body.activity.itemId },
+            { $push: { "activity.details" : {
+                "activityType": "Answer",
+				"timeSpent": 125,
+				"activityResponse": "CORRECT"
+            } }},
+            { upsert: true }
+            )
+        res.status(201).send("Success!")
+    } catch(err) {
+        res.status(400).json({ message: err.message })
+    }
+})
+
+// Update an activity
+router.put('/:id', async (req, res) => {
+    try {
+        const updatedActivity = await Activity.findByIdAndUpdate(
+            req.params.id,
+            {
+                userId: req.body.userId,
+                activity: {
+                    timestamp: req.body.activity.timestamp,
+                    itemType: req.body.activity.itemType,
+                    itemId: req.body.activity.itemId,
+                    courseId: req.body.activity.courseId,
+                    lessonId: req.body.activity.lessonId,
+                    activityDetails: {
+                        activityType: req.body.activity.activityDetails.activityType,
+                        activityResponse: req.body.activity.activityDetails.activityResponse
+                    }
+                }
+            },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedActivity) {
+            return res.status(404).json({ message: 'Cannot find activity to update' });
+        }
+
+        res.json(updatedActivity);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 // Update an activity response for a certain activity
 router.put("/update/:id", async (req, res) => {
-    const newResponse = req.body.activityReponse
-    await Activity.updateOne({ _id: req.params.id }, { $set: {  }})
+    const newResponse = req.body.activityResponse
+    const result = await Activity.updateOne(
+        { _id: req.params.id }, 
+        { $set: { "activity.details.1.activityResponse": newResponse }})
+    res.json(result)
 })
+
 
 // Delete an activity
 router.delete('/delete/:id', async(req, res) => {
@@ -127,25 +174,26 @@ router.get('/deleteall', async(req, res) => {
         await Activity.deleteMany({})
         res.send("All documents have been deleted")
     } catch (err) {
-        res.status(500).json({ message: err.message })
+        return res.status(500).json({ message: err.message })
     }
-})
+    res.activity = activity
+    next();
+}
 
-// async function getActivity(req, res, next) {
-//     let activity
-//     try {
-//         activity = await Activity.findById(req.params.id)
-//         if (activity == null) {
-//             return res.status(404).json({ message: 'Cannot find activity' })
-//         }
+async function getActivityByUserId(req, res, next) {
+    let activities
+    try {
+        activities = await Activity.find({'userId': req.params.userId});
+        if (activities == null) {
+            return res.status(404).json({ message: 'Cannot find activity' })
+        }
     
-
-//     } catch (err) {
-//         return res.status(500).json({ message: err.message })
-//     }
-//     res.activity = activity
-//     next();
-// }
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+    res.activity = activities
+    next(); 
+}
 
 
 module.exports = router

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Data Generator</title>
+</head>
+<body>
+    <button id="generateButton">Generate User Activity Data</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', async () => {
+            try {
+                const newWindow = window.open('newpage.html', '_blank');
+    
+                const response =  fetch('http://localhost:3010/generateData');
+                const data =  response.json();
+    
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+    
+</body>
+</html>

@@ -41,20 +41,18 @@ function getRandomInterval(min, max) {
 }
 
 function startRandomInterval() {
-    const randomInterval = getRandomInterval(5000, 15000); // Adjust the range as needed
+    const randomInterval = getRandomInterval(5000, 15000);
     console.log(`Next interval will be ${randomInterval} milliseconds`);
 
     intervalId = setInterval(() => {
         const randomData = generateUserActivity();
         console.log(randomData);
 
-        // Clear the interval and start a new one with a random duration
+        
         clearInterval(intervalId);
         startRandomInterval();
     }, randomInterval);
 }
-
-// Start the initial interval
 
 
 

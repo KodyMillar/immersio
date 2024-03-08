@@ -23,8 +23,18 @@ router.get('/getByItem/:itemId', async (req, res) => {
     }
 })
 
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
+    res.json(res.activity)
+})
+
 // Get one activity data
 router.get('/:id', getActivity, (req, res) => {
+    res.json(res.activity)
+})
+
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
     res.json(res.activity)
 })
 
@@ -60,14 +70,46 @@ router.post('/', async (req, res) => {
     } 
 })
 
+// Update an activity
+router.put('/:id', async (req, res) => {
+    try {
+        const updatedActivity = await Activity.findByIdAndUpdate(
+            req.params.id,
+            {
+                userId: req.body.userId,
+                activity: {
+                    timestamp: req.body.activity.timestamp,
+                    itemType: req.body.activity.itemType,
+                    itemId: req.body.activity.itemId,
+                    courseId: req.body.activity.courseId,
+                    lessonId: req.body.activity.lessonId,
+                    activityDetails: {
+                        activityType: req.body.activity.activityDetails.activityType,
+                        activityResponse: req.body.activity.activityDetails.activityResponse
+                    }
+                }
+            },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedActivity) {
+            return res.status(404).json({ message: 'Cannot find activity to update' });
+        }
+
+        res.json(updatedActivity);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 // Update an activity response for a certain activity
 router.put("/update/:id", async (req, res) => {
     const newResponse = req.body.activityResponse
     await Activity.updateOne(
         { _id: req.params.id }, 
         { $set: { "activity.details.1.activityResponse": newResponse }})
-    res.json({ message: "Response updated" })
+    res.json(result)
 })
+
 
 // Delete an activity
 router.delete('/:id', async(req, res) => {
@@ -97,6 +139,21 @@ async function getActivity(req, res, next) {
     }
     res.activity = activity
     next();
+}
+
+async function getActivityByUserId(req, res, next) {
+    let activities
+    try {
+        activities = await Activity.find({'userId': req.params.userId});
+        if (activities == null) {
+            return res.status(404).json({ message: 'Cannot find activity' })
+        }
+    
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+    res.activity = activities
+    next(); 
 }
 
 

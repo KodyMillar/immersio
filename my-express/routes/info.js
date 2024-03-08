@@ -41,23 +41,7 @@ router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
 // Create a new activity
 router.post('/', async (req, res) => {
     try {
-        const activity = new Activity({
-            userId: req.body.userId,
-            activity: {
-                courseId: req.body.activity.courseId,
-                lessonId: req.body.activity.lessonId,
-                itemId: req.body.activity.itemId,
-                itemType: req.body.activity.itemType,
-                details: {
-                    "1": {
-                        timestamp: req.body.activity.details["1"].timestamp,
-                        activityType: req.body.activity.details["1"].activityType,
-                        timeSpent: req.body.activity.details["1"].timeSpent,
-                        activityResponse: req.body.activity.details["1"].activityResponse
-                    }
-                }
-            }
-        })
+        const activity = new Activity(req.body)
         const newActivity = await activity.save()
         res.status(201).json(newActivity)
     } catch (err) {
@@ -68,6 +52,24 @@ router.post('/', async (req, res) => {
             res.status(400).json({ message: err.message })
         }
     } 
+})
+
+router.put('/', async (req, res) => {
+    try {
+        await Activity.updateOne(
+            { "userId": req.body.userId, "activity.itemId": req.body.activity.itemId },
+            { $push: { "activity.details" : {
+                "timestamp": Date.now(),
+                "activityType": "Answer",
+				"timeSpent": 125,
+				"activityResponse": "CORRECT"
+            } }},
+            { upsert: true }
+            )
+        res.status(201).send("Success!")
+    } catch(err) {
+        res.status(400).json({ message: err.message })
+    }
 })
 
 // Update an activity

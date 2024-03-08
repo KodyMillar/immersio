@@ -104,7 +104,7 @@ router.put('/:id', async (req, res) => {
 // Update an activity response for a certain activity
 router.put("/update/:id", async (req, res) => {
     const newResponse = req.body.activityResponse
-    const result = await Activity.updateOne(
+    await Activity.updateOne(
         { _id: req.params.id }, 
         { $set: { "activity.details.1.activityResponse": newResponse }})
     res.json(result)

@@ -57,7 +57,13 @@ router.post('/', async (req, res) => {
 router.put('/', async (req, res) => {
     try {
         await Activity.updateOne(
-            { "userId": req.body.userId, "activity.itemId": req.body.activity.itemId },
+            { 
+                "userId": req.body.userId, 
+                "activity.courseId": req.body.activity.courseId, 
+                "activity.lessonId": req.body.activity.lessonId,
+                "activity.itemId": req.body.activity.itemId,
+                "activity.itemType": req.body.activity.itemType
+            },
             { $push: { "activity.details" : {
                 "timestamp": 1694383534532,
                 "activityType": "Answer",

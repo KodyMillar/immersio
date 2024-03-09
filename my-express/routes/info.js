@@ -54,12 +54,20 @@ router.post('/', async (req, res) => {
     } 
 })
 
+/* Request for storing user activities
+    Creates an activity or updates them if they exist */
 router.put('/', async (req, res) => {
     try {
         await Activity.updateOne(
-            { "userId": req.body.userId, "activity.itemId": req.body.activity.itemId },
+            { 
+                "userId": req.body.userId, 
+                "activity.courseId": req.body.activity.courseId, 
+                "activity.lessonId": req.body.activity.lessonId,
+                "activity.itemId": req.body.activity.itemId,
+                "activity.itemType": req.body.activity.itemType
+            },
             { $push: { "activity.details" : {
-                "timestamp": Date.now(),
+                "timestamp": 1694383534532,
                 "activityType": "Answer",
 				"timeSpent": 125,
 				"activityResponse": "CORRECT"
@@ -72,7 +80,7 @@ router.put('/', async (req, res) => {
     }
 })
 
-// Update an activity
+// Update an individual activity
 router.put('/:id', async (req, res) => {
     try {
         const updatedActivity = await Activity.findByIdAndUpdate(
@@ -103,6 +111,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
 // Update an activity response for a certain activity
 router.put("/update/:id", async (req, res) => {
     const newResponse = req.body.activityResponse
@@ -127,6 +136,7 @@ router.delete('/:id', async(req, res) => {
     }
 })
 
+// Function to retrieve an activity for all users
 async function getActivity(req, res, next) {
     let activity
     try {
@@ -143,6 +153,7 @@ async function getActivity(req, res, next) {
     next();
 }
 
+// Function for getting activities from a user
 async function getActivityByUserId(req, res, next) {
     let activities
     try {

@@ -43,7 +43,6 @@ export default function VideoForm() {
                             timestamp: endTime,
                             activityType: type.charAt(0).toUpperCase() + type.slice(1),
                             timeSpent: timeSpent,
-
                         }
                     }
                 }
@@ -54,6 +53,17 @@ export default function VideoForm() {
         console.log(type)
         sendActivityUpdate();
     };
+
+    const handleVideoSkipEvent = (event: any) => {
+        const type = event.type
+        /*
+        setActivity(prevActivity => {
+            const updatedActivity = {
+                ...prevActivity
+            }
+        })
+        */
+    }
 
     // Function to send updated activity data to API
     const sendActivityUpdate = async () => {
@@ -71,6 +81,7 @@ export default function VideoForm() {
         const videoElement = videoRef.current;
         if (videoElement) {
             videoElement.addEventListener('play', handleVideoEvent);
+            videoElement.addEventListener("seeked", handleVideoSkipEvent)
             // Cleanup function to remove event listeners
             return () => {
                 videoElement.removeEventListener('play', handleVideoEvent);

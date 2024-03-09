@@ -42,7 +42,8 @@ app.use((err, req, res, next) => {
     }
 });
 
-// Delete after 30 days
+/* Schedule to delete activities after 30 days
+    calls controller in the controllers/activityController.js file */ 
 const cron = require("node-cron");
 cron.schedule("23 1 * * *", () => {
         http.request(

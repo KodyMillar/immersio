@@ -54,6 +54,8 @@ router.post('/', async (req, res) => {
     } 
 })
 
+/* Request for storing user activities
+    Creates an activity or updates them if they exist */
 router.put('/', async (req, res) => {
     try {
         await Activity.updateOne(
@@ -78,7 +80,7 @@ router.put('/', async (req, res) => {
     }
 })
 
-// Update an activity
+// Update an individual activity
 router.put('/:id', async (req, res) => {
     try {
         const updatedActivity = await Activity.findByIdAndUpdate(
@@ -109,6 +111,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
 // Update an activity response for a certain activity
 router.put("/update/:id", async (req, res) => {
     const newResponse = req.body.activityResponse
@@ -133,6 +136,7 @@ router.delete('/:id', async(req, res) => {
     }
 })
 
+// Function to retrieve an activity for all users
 async function getActivity(req, res, next) {
     let activity
     try {
@@ -149,6 +153,7 @@ async function getActivity(req, res, next) {
     next();
 }
 
+// Function for getting activities from a user
 async function getActivityByUserId(req, res, next) {
     let activities
     try {

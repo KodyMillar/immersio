@@ -1,6 +1,6 @@
 const Activity = require("../models/activity");
-const TimeAgo = require("javascript-time-ago");
 
+// Deletes all activites that have a timestamp older than 180 days
 const activityController = {
 	deleteOldActivities: async (req, res) => {
 		const today = new Date;

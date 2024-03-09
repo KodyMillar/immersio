@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// The activity.details subschema
 const detailsSchema = new mongoose.Schema({
     timestamp: {
         type: Number,
@@ -15,6 +16,10 @@ const detailsSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    videoTime: {
+        type: Number,
+        required: false
+    },
     activityResponse: {
         type: String,
         required: false,
@@ -22,6 +27,7 @@ const detailsSchema = new mongoose.Schema({
     }
 })
 
+// The main activity schema
 const activitySchema = new mongoose.Schema({
     userId: {
         type: String,

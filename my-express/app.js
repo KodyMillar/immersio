@@ -8,6 +8,8 @@ const swaggerDocument = YAML.load('./openapi.yml')
 const app = express()
 const helmet = require('helmet')
 const mongoose = require('mongoose')
+const http = require("http");
+const activityController = require("./controllers/activityController").activityController
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -33,11 +35,28 @@ app.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}/a
 app.use((err, req, res, next) => {
     console.error(err.stack);
     if (err instanceof SyntaxError) {
-        res.status(400).send("Wrong Json Syntax")
+        res.status(400).send("Wrong Json Syntax");
     }
     else {
         res.status(500).send('Something broke!');
     }
 });
 
+/* Schedule to delete activities after 30 days
+    calls controller in the controllers/activityController.js file */ 
+const cron = require("node-cron");
+cron.schedule("23 1 * * *", () => {
+        http.request(
+            "http://localhost:3000/info", 
+            { method: "DELETE" }, 
+            activityController.deleteOldActivities
+        );
+    }, 
+    {
+        scheduled: true,
+        timezone: "Etc/UTC"
+    }
+);
+
 module.exports = db
+

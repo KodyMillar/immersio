@@ -59,7 +59,7 @@ router.put('/', async (req, res) => {
         await Activity.updateOne(
             { "userId": req.body.userId, "activity.itemId": req.body.activity.itemId },
             { $push: { "activity.details" : {
-                "timestamp": Date.now(),
+                "timestamp": 1694383534532,
                 "activityType": "Answer",
 				"timeSpent": 125,
 				"activityResponse": "CORRECT"

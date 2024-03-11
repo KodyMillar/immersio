@@ -9,6 +9,7 @@ app.use(express.static('public'));
 
 app.get('/generateData', (req, res) => {
     const randomData = generateUserActivity();
+    startRandomInterval();
     res.json(randomData);
 });
 
@@ -35,15 +36,25 @@ function generateUserActivity() {
     return data;
 }
 
-app.get('/newpage.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'newpage.html'));
-});
+function getRandomInterval(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function startRandomInterval() {
+    const randomInterval = getRandomInterval(5000, 15000);
+    console.log(`Next interval will be ${randomInterval} milliseconds`);
+
+    intervalId = setInterval(() => {
+        const randomData = generateUserActivity();
+        console.log(randomData);
+
+        
+        clearInterval(intervalId);
+        startRandomInterval();
+    }, randomInterval);
+}
 
 
-setInterval(() => {
-    const randomData = generateUserActivity();
-    console.log('Generated data:', randomData);
-}, 10000);
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);

@@ -6,22 +6,30 @@
     <title>User Activity Data Generator</title>
 </head>
 <body>
-    <button id="generateButton">Generate User Activity Data</button>
-    <div id="result"></div>
+    <button id="start">Generate User Activity Data</button>
+    <button id="stop">Stop</button>
 
     <script>
-        document.getElementById('generateButton').addEventListener('click', async () => {
+
+        document.getElementById('start').addEventListener('click', async () => {
             try {
-                const newWindow = window.open('newpage.html', '_blank');
-    
-                const response =  fetch('http://localhost:3010/generateData');
-                const data =  response.json();
-    
+
+                window.open('http://localhost:3010/newpage.html', '_blank');
+                window.location.href = "http://localhost:3010/generateData";
+
+            
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        document.getElementById('stop').addEventListener('click', async () => {
+            try {
+                window.location.href = 'http://localhost:3010/stopDataGeneration';
             } catch (error) {
                 console.error('Error:', error);
             }
         });
     </script>
-    
 </body>
 </html>

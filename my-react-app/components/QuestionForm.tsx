@@ -7,39 +7,42 @@ import axios from "axios";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Question() {
-  const [activity, setActivity] = useState<activityData>({
+  const [activity, setActivity] = useState({
     userId: '',
     activity: {
       courseId: 4640,
       lessonId: 5,
       itemId: "A-1",
       itemType: "Vocabulary",
-      details: {
-        1: {
-          timestamp: Date.now(),
-          activityType: 'Answer',
-          timeSpent: 0, 
-          activityResponse: '', 
-        }
-      }
+      details: [{
+        timestamp: Date.now(),
+        activityType: 'Answer',
+        timeSpent: 0,
+        activityResponse: '', 
+      }]
     }
-  }
-  );
+  });
 
   const[startingTime, setStartingTime] = useState(Date.now());
+
+  function convertToUTC(timestamp: number) {
+    const date = new Date(timestamp);
+    return date.toUTCString();
+  }
 
   function updateActivityTimeSpent(detailId: number) {
     setActivity(prev => {
       const startTime  = startingTime;
       const endTime = Date.now();
       const timeSpent = endTime - startTime;
+      convertToUTC(endTime);
 
       const updatedDetails = {
         ...prev.activity.details,
         [detailId]: {
           ...prev.activity.details[detailId],
           timeSpent,
-          timestamp: endTime
+          timestamp: endTime,
         }
       }
       return {

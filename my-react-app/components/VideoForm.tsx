@@ -15,14 +15,12 @@ export default function VideoForm() {
             lessonId: 2,
             itemId: "B-2",
             itemType: "Video",
-            details: {
-                1: {
-                    timestamp: Date.now(),
-                    activityType: 'Play',
-                    timeSpent: 0,
-                    activityResponse: 'Recieved',
-                }
-            }
+            details: [{
+                timestamp: Date.now(),
+                activityType: 'Answer',
+                timeSpent: 0,
+                activityResponse: '', 
+              }]
         }
     });
 

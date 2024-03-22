@@ -9,7 +9,7 @@ export default function VideoForm() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const[startingTime, setStartingTime] = useState(Date.now());
     const [activity, setActivity] = useState<activityData>({
-        userId: 'Timothy',
+        userId: 'Rocky',
         activity: {
             courseId: 3855,
             lessonId: 2,
@@ -19,7 +19,6 @@ export default function VideoForm() {
                 timestamp: Date.now(),
                 activityType: 'Answer',
                 timeSpent: 0,
-                activityResponse: '', 
               }]
         }
     });
@@ -35,14 +34,13 @@ export default function VideoForm() {
                 ...prevActivity,
                 activity: {
                     ...prevActivity.activity,
-                    details: {
-                        ...prevActivity.activity.details,
-                        1: {
+                    details: [
+                        {
                             timestamp: endTime,
                             activityType: type.charAt(0).toUpperCase() + type.slice(1),
-                            timeSpent: timeSpent,
+                            timeSpent: timeSpent
                         }
-                    }
+                    ]
                 }
             };
             return updatedActivity;
@@ -53,7 +51,8 @@ export default function VideoForm() {
     };
 
     const handleVideoSkipEvent = (event: any) => {
-        const type = event.type
+        const type = event.type;
+        console.log("HI")
         /*
         setActivity(prevActivity => {
             const updatedActivity = {
@@ -66,7 +65,8 @@ export default function VideoForm() {
     // Function to send updated activity data to API
     const sendActivityUpdate = async () => {
         try {
-            axios.post(`${apiUrl}/info`, activity);
+            // axios.post(`${apiUrl}/info`, acztivity);
+            axios.put(`${apiUrl}info`, activity);
             setStartingTime(Date.now());
             console.log(activity);
         } catch (error) {
@@ -79,7 +79,7 @@ export default function VideoForm() {
         const videoElement = videoRef.current;
         if (videoElement) {
             videoElement.addEventListener('play', handleVideoEvent);
-            videoElement.addEventListener("seeked", handleVideoSkipEvent)
+            videoElement.addEventListener("seeked", handleVideoSkipEvent);
             // Cleanup function to remove event listeners
             return () => {
                 videoElement.removeEventListener('play', handleVideoEvent);

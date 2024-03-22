@@ -19,7 +19,6 @@ export default function VideoForm() {
                 timestamp: Date.now(),
                 activityType: 'Answer',
                 timeSpent: 0,
-                activityResponse: '', 
               }]
         }
     });
@@ -35,21 +34,13 @@ export default function VideoForm() {
                 ...prevActivity,
                 activity: {
                     ...prevActivity.activity,
-                    details: [//{
+                    details: [
                         {
                             timestamp: endTime,
                             activityType: type.charAt(0).toUpperCase() + type.slice(1),
-                            timeSpent: timeSpent,
-                            activityResponse: ""
+                            timeSpent: timeSpent
                         }
                     ]
-                        // ...prevActivity.activity.details,
-                        // 1: {
-                        //     timestamp: endTime,
-                        //     activityType: type.charAt(0).toUpperCase() + type.slice(1),
-                        //     timeSpent: timeSpent,
-                        // }
-                    //}
                 }
             };
             return updatedActivity;

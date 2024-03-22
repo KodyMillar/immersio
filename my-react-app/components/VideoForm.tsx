@@ -22,7 +22,7 @@ export default function VideoForm() {
                 activityResponse: '', 
               }]
         }
-    );
+    });
 
     const handleVideoEvent = (event: any) => {
         const type = event.type;
@@ -39,7 +39,8 @@ export default function VideoForm() {
                         {
                             timestamp: endTime,
                             activityType: type.charAt(0).toUpperCase() + type.slice(1),
-                            timeSpent: timeSpent
+                            timeSpent: timeSpent,
+                            activityResponse: ""
                         }
                     ]
                         // ...prevActivity.activity.details,
@@ -74,7 +75,7 @@ export default function VideoForm() {
     const sendActivityUpdate = async () => {
         try {
             // axios.post(`${apiUrl}/info`, acztivity);
-            axios.post(`${apiUrl}`, activity);
+            axios.put(`${apiUrl}info`, activity);
             setStartingTime(Date.now());
             console.log(activity);
         } catch (error) {

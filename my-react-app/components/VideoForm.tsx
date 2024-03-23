@@ -8,9 +8,10 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export default function VideoForm() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [startingTime, setStartingTime] = useState(Date.now());
-    const isResumingRef = useRef(false);
+    const playType = useRef("Play");
     const videoTimeRef = useRef([[0, 0]]);
     let videoTimeInterval: any;
+    let currentVideoTimeIndex = 0;
     const activityRef = useRef<activityData>({
             userId: 'Woody',
             activity: {
@@ -43,17 +44,16 @@ export default function VideoForm() {
 
     const handleVideoEvent = (event: any) => {
         if (!videoTimeInterval) {
+            setCurrentVideoTimeIndex();
             videoTimeInterval = setInterval(trackWatched);
         }
-        let activityType = event.type.charAt(0).toUpperCase() + event.type.slice(1);
-        // console.log(isResuming.current);
-        if (isResumingRef.current) {
-            activityType = "Resume";
+        // let activityType = event.type.charAt(0).toUpperCase() + event.type.slice(1);
+        let activityType = playType.current;
+
+        if (playType.current === "Play") {
+            playType.current = "Resume";
         }
-        else {
-            console.log("set to true")
-            isResumingRef.current = true;
-        }
+
         const endTime = Date.now();
         const startTime = startingTime;
         const timeSpent = endTime - startTime;
@@ -76,23 +76,23 @@ export default function VideoForm() {
         //         }
         //     };
 
-        const updatedActivity = {
-            userId: 'Woody',
-                activity: {
-                    courseId: 3855,
-                    lessonId: 2,
-                    itemId: "B-2",
-                    itemType: "Video",
-                    details: [
-                        {
-                            timestamp: endTime,
-                            activityType: activityType,
-                            timeSpent: timeSpent,
-                            // videoTime: videoTime
-                        }
-                    ]
-                }
-        }
+        // const updatedActivity = {
+        //     userId: 'Woody',
+        //         activity: {
+        //             courseId: 3855,
+        //             lessonId: 2,
+        //             itemId: "B-2",
+        //             itemType: "Video",
+        //             details: [
+        //                 {
+        //                     timestamp: endTime,
+        //                     activityType: activityType,
+        //                     timeSpent: timeSpent,
+        //                     // videoTime: videoTime
+        //                 }
+        //             ]
+        //         }
+        // }
 
         activityRef.current.activity.details = [
             {
@@ -181,7 +181,6 @@ export default function VideoForm() {
     // Reset timer and most recent activity when user enters or leaves page
     const handleLoadEvent = (event: any) => {
         setStartingTime(Date.now());
-        isResumingRef.current = false;
     }
 
     // Attach event listeners on component mount
@@ -203,9 +202,64 @@ export default function VideoForm() {
 
     // Keep track of parts of the video the user has watched
     const trackWatched = () => {
-        if (videoTimeRef.current.length === 1) {
-            videoTimeRef.current[0][1] = videoRef.current.currentTime;
-            console.log(videoTimeRef.current);
+        console.log(videoTimeRef.current);
+        if (videoRef.current.currentTime > videoTimeRef.current[currentVideoTimeIndex][1]) {
+            videoTimeRef.current[currentVideoTimeIndex][1] = videoRef.current.currentTime;
+        }
+        
+        if (currentVideoTimeIndex !== videoTimeRef.current.length - 1) {
+            if (videoTimeRef.current[currentVideoTimeIndex][1] >= videoTimeRef.current[currentVideoTimeIndex + 1][0]) {
+                videoTimeRef.current[currentVideoTimeIndex] = [videoTimeRef.current[currentVideoTimeIndex][0], videoTimeRef.current[currentVideoTimeIndex + 1][1]];
+                videoTimeRef.current.splice(currentVideoTimeIndex + 1, 1);
+            }
+        }
+
+    }
+
+    const setCurrentVideoTimeIndex = () => {
+        // if (currentVideoTimeIndex > videoTimeRef.current[currentVideoTimeIndex][1]) {
+            
+        // }
+        for (let i=0; i < videoTimeRef.current.length; i++) {
+            if (videoRef.current.currentTime > videoTimeRef.current[i][1]) {
+                if (videoTimeRef.current.length === i + 1) {
+                    currentVideoTimeIndex = i + 1;
+                    videoTimeRef.current.push([videoRef.current.currentTime, videoRef.current.currentTime])
+                    playType.current = "Resume"
+                    break;
+                }
+                else if (videoRef.current.currentTime < videoTimeRef.current[i+1][0]) {
+                    currentVideoTimeIndex = i + 1;
+                    videoTimeRef.current.splice(currentVideoTimeIndex, 0, [videoRef.current?.currentTime, videoRef.current.currentTime])
+                    playType.current = "Resume";
+                    break;
+                }
+            }
+
+            else if (videoRef.current.currentTime < videoTimeRef.current[i][0]) {
+                if (i === 0) {
+                    currentVideoTimeIndex = 0;
+                    videoTimeRef.current.unshift([videoTimeRef.current, videoTimeRef.current]);
+                    break;
+                }
+                // else if (videoRef.current.currentTime > videoTimeRef.current[i-1][1]) {
+                //     currentVideoTimeIndex = i;
+                //     videoTimeRef.current.splice(currentVideoTimeIndex, 0, [videoRef.current?.currentTime, videoRef.current.currentTime])
+                //     playType.current = "Resume";
+                //     break;
+                // }
+            }
+
+            else {
+                currentVideoTimeIndex = i;
+                if (playType.current !== "Play" && videoRef.current.currentTime != videoTimeRef.current[currentVideoTimeIndex][1]) {
+                    playType.current = "Replay";
+                }
+                else if (playType.current !== "Play") {
+                    playType.current = "Resume"
+                }
+                break;
+            }
         }
     }
 

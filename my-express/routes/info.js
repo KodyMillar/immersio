@@ -66,12 +66,7 @@ router.put('/', async (req, res) => {
                 "activity.itemId": req.body.activity.itemId,
                 "activity.itemType": req.body.activity.itemType
             },
-            { $push: { "activity.details" : {
-                "timestamp": 1694383534532,
-                "activityType": "Answer",
-				"timeSpent": 125,
-				"activityResponse": "CORRECT"
-            } }},
+            { $push: { "activity.details" : req.body.activity.details[0] }},
             { upsert: true }
             )
         res.status(201).send("Success!")

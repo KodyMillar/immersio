@@ -7,32 +7,59 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function VideoForm() {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const[startingTime, setStartingTime] = useState(Date.now());
-    const[lastActivityType, setLastActivityType] = useState(null);
-    const [activity, setActivity] = useState<activityData>({
-        userId: 'Rocky',
-        activity: {
-            courseId: 3855,
-            lessonId: 2,
-            itemId: "B-2",
-            itemType: "Video",
-            details: [{
-                timestamp: Date.now(),
-                activityType: 'Answer',
-                timeSpent: 0,
+    const [startingTime, setStartingTime] = useState(Date.now());
+    const isResumingRef = useRef(false);
+    const videoTimeRef = useRef([[0, 0]]);
+    let videoTimeInterval: any;
+    const activityRef = useRef<activityData>({
+            userId: 'Woody',
+            activity: {
+                courseId: 3855,
+                lessonId: 2,
+                itemId: "B-2",
+                itemType: "Video",
+                details: [{
+                    timestamp: Date.now(),
+                    activityType: 'Answer',
+                    timeSpent: 0,
+                    videoTime: 0
               }]
         }
-    });
+    })
+    // const [activity, setActivity] = useState<activityData>({
+    //     userId: 'Woody',
+    //     activity: {
+    //         courseId: 3855,
+    //         lessonId: 2,
+    //         itemId: "B-2",
+    //         itemType: "Video",
+    //         details: [{
+    //             timestamp: Date.now(),
+    //             activityType: 'Answer',
+    //             timeSpent: 0,
+    //           }]
+    //     }
+    // });
 
     const handleVideoEvent = (event: any) => {
-        const videoTime = videoRef.current?.currentTime;
+        if (!videoTimeInterval) {
+            videoTimeInterval = setInterval(trackWatched);
+        }
         let activityType = event.type.charAt(0).toUpperCase() + event.type.slice(1);
-        if (lastActivityType === "Pause") {
-            activityType = "Resume"
+        // console.log(isResuming.current);
+        if (isResumingRef.current) {
+            activityType = "Resume";
+        }
+        else {
+            console.log("set to true")
+            isResumingRef.current = true;
         }
         const endTime = Date.now();
         const startTime = startingTime;
         const timeSpent = endTime - startTime;
+        const videoTime = videoRef.current?.currentTime;
+
+
         
         // setActivity(prevActivity => {
         //     const updatedActivity = {
@@ -50,7 +77,7 @@ export default function VideoForm() {
         //     };
 
         const updatedActivity = {
-            userId: 'Chihiro',
+            userId: 'Woody',
                 activity: {
                     courseId: 3855,
                     lessonId: 2,
@@ -66,7 +93,18 @@ export default function VideoForm() {
                     ]
                 }
         }
-        sendActivityUpdate(updatedActivity);
+
+        activityRef.current.activity.details = [
+            {
+                timestamp: endTime,
+                activityType: activityType,
+                timeSpent: timeSpent,
+                videoTime: videoTime
+            }
+        ]
+        console.log(activityRef)
+        
+        sendActivityUpdate(activityRef.current);
     };
 
     const handleVideoSkipEvent = (event: any) => {
@@ -76,7 +114,7 @@ export default function VideoForm() {
         const timeSpent = endTime - startingTime;
         const videoTime = videoRef.current?.currentTime;
         const updatedActivity = {
-                userId: 'Chihiro',
+                userId: 'Woody',
                 activity: {
                     courseId: 3855,
                     lessonId: 2,
@@ -99,12 +137,17 @@ export default function VideoForm() {
     }
 
     const handleVideoPauseEvent = (event: any) => {
+        if (videoTimeInterval) {
+            clearInterval(videoTimeInterval);
+            videoTimeInterval = null;
+        }
+
         const type = "Pause";
         const endTime = Date.now();
         const timeSpent = endTime - startingTime;
         const videoTime = videoRef.current?.currentTime;
         const updatedActivity = {
-            userId: 'Chihiro',
+            userId: 'Woody',
             activity: {
                 courseId: 3855,
                 lessonId: 2,
@@ -124,12 +167,11 @@ export default function VideoForm() {
     }
 
     // Function to send updated activity data to API
-    const sendActivityUpdate = async (activity: any) => {
+    const sendActivityUpdate = async (activity: object) => {
         try {
             // axios.post(`${apiUrl}/info`, acztivity);
             axios.put(`${apiUrl}info`, activity);
             setStartingTime(Date.now());
-            setLastActivityType(activity.activity.details[0].activityType)
             console.log(activity);
         } catch (error) {
             console.error('Error updating activity:', error);
@@ -139,7 +181,7 @@ export default function VideoForm() {
     // Reset timer and most recent activity when user enters or leaves page
     const handleLoadEvent = (event: any) => {
         setStartingTime(Date.now());
-        setLastActivityType(null);
+        isResumingRef.current = false;
     }
 
     // Attach event listeners on component mount
@@ -159,15 +201,23 @@ export default function VideoForm() {
     }, []);
 
 
+    // Keep track of parts of the video the user has watched
+    const trackWatched = () => {
+        if (videoTimeRef.current.length === 1) {
+            videoTimeRef.current[0][1] = videoRef.current.currentTime;
+            console.log(videoTimeRef.current);
+        }
+    }
 
     return (
         <div>
             <h1 className="text-2xl font-bold ml-4">Enter your User Id</h1>
             <input
                 type="text"
-                value={activity.userId}
+                placeholder="A username or number"
                 name="userId"
-                onChange={(e) => setActivity({ ...activity, userId: e.target.value })}
+                // onChange={(e) => setActivity({ ...activity, userId: e.target.value })}
+                onChange={(e) => activityRef.current.userId = e.target.value}
                 className="m-4 p-2 border-2 border-gray-300 rounded-md"
             />
             <video ref={videoRef} width="320" height="240" className="p-2 m-2" controls>

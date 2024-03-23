@@ -8,6 +8,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 export default function VideoForm() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const[startingTime, setStartingTime] = useState(Date.now());
+    const[lastActivityType, setLastActivityType] = useState(null);
     const [activity, setActivity] = useState<activityData>({
         userId: 'Rocky',
         activity: {
@@ -24,62 +25,132 @@ export default function VideoForm() {
     });
 
     const handleVideoEvent = (event: any) => {
-        const type = event.type;
+        const videoTime = videoRef.current?.currentTime;
+        let activityType = event.type.charAt(0).toUpperCase() + event.type.slice(1);
+        if (lastActivityType === "Pause") {
+            activityType = "Resume"
+        }
         const endTime = Date.now();
         const startTime = startingTime;
         const timeSpent = endTime - startTime;
-    
-        setActivity(prevActivity => {
-            const updatedActivity = {
-                ...prevActivity,
+        
+        // setActivity(prevActivity => {
+        //     const updatedActivity = {
+        //         ...prevActivity,
+        //         activity: {
+        //             ...prevActivity.activity,
+        //             details: [
+        //                 {
+        //                     timestamp: endTime,
+        //                     activityType: type.charAt(0).toUpperCase() + type.slice(1),
+        //                     timeSpent: timeSpent
+        //                 }
+        //             ]
+        //         }
+        //     };
+
+        const updatedActivity = {
+            userId: 'Chihiro',
                 activity: {
-                    ...prevActivity.activity,
+                    courseId: 3855,
+                    lessonId: 2,
+                    itemId: "B-2",
+                    itemType: "Video",
                     details: [
                         {
                             timestamp: endTime,
-                            activityType: type.charAt(0).toUpperCase() + type.slice(1),
-                            timeSpent: timeSpent
+                            activityType: activityType,
+                            timeSpent: timeSpent,
+                            // videoTime: videoTime
                         }
                     ]
                 }
-            };
-            return updatedActivity;
-        });
-        
-        console.log(type)
-        sendActivityUpdate();
+        }
+        sendActivityUpdate(updatedActivity);
     };
 
     const handleVideoSkipEvent = (event: any) => {
-        const type = event.type;
-        console.log("HI")
-        /*
-        setActivity(prevActivity => {
-            const updatedActivity = {
-                ...prevActivity
+        const type = "Skip";
+        console.log(typeof(type));
+        const endTime = Date.now();
+        const timeSpent = endTime - startingTime;
+        const videoTime = videoRef.current?.currentTime;
+        const updatedActivity = {
+                userId: 'Chihiro',
+                activity: {
+                    courseId: 3855,
+                    lessonId: 2,
+                    itemId: "B-2",
+                    itemType: "Video",
+                    details: [
+                        {
+                            timestamp: endTime,
+                            activityType: type,
+                            timeSpent: timeSpent,
+                            videoTime: videoTime
+                        }
+                    ]
+                }
             }
-        })
-        */
+
+        // return updatedActivity
+        console.log(videoTime)
+        sendActivityUpdate(updatedActivity);
+    }
+
+    const handleVideoPauseEvent = (event: any) => {
+        const type = "Pause";
+        const endTime = Date.now();
+        const timeSpent = endTime - startingTime;
+        const videoTime = videoRef.current?.currentTime;
+        const updatedActivity = {
+            userId: 'Chihiro',
+            activity: {
+                courseId: 3855,
+                lessonId: 2,
+                itemId: "B-2",
+                itemType: "Video",
+                details: [
+                    {
+                        timestamp: endTime,
+                        activityType: type,
+                        timeSpent: timeSpent,
+                        videoTime: videoTime
+                    }
+                ]
+            }
+        }
+        sendActivityUpdate(updatedActivity);
     }
 
     // Function to send updated activity data to API
-    const sendActivityUpdate = async () => {
+    const sendActivityUpdate = async (activity: any) => {
         try {
             // axios.post(`${apiUrl}/info`, acztivity);
             axios.put(`${apiUrl}info`, activity);
             setStartingTime(Date.now());
+            setLastActivityType(activity.activity.details[0].activityType)
             console.log(activity);
         } catch (error) {
             console.error('Error updating activity:', error);
         }
     };
 
+    // Reset timer and most recent activity when user enters or leaves page
+    const handleLoadEvent = (event: any) => {
+        setStartingTime(Date.now());
+        setLastActivityType(null);
+    }
+
     // Attach event listeners on component mount
     useEffect(() => {
+        window.addEventListener('load', handleLoadEvent);
+        window.addEventListener('unload', handleLoadEvent);
         const videoElement = videoRef.current;
         if (videoElement) {
             videoElement.addEventListener('play', handleVideoEvent);
             videoElement.addEventListener("seeked", handleVideoSkipEvent);
+            videoElement.addEventListener('pause', handleVideoPauseEvent);
             // Cleanup function to remove event listeners
             return () => {
                 videoElement.removeEventListener('play', handleVideoEvent);

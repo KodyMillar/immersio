@@ -10,7 +10,9 @@ const helmet = require('helmet')
 const mongoose = require('mongoose')
 const http = require("http");
 const activityController = require("./controllers/activityController").activityController
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT;
+const url = process.env.URL;
+const deleteSchedule = process.env.DELETE_SCHEDULE;
 
 // Sever Configuration
 // const fs = require('fs');
@@ -42,7 +44,7 @@ app.get('/.well-known/pki-validation/CC14716A241C7005FE4517DE8AB41337.txt', (req
 })
 
 // Start the server
-app.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}/api`))
+app.listen(port, () => console.log(`Server started at ${url}:${port}/api`))
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -58,9 +60,9 @@ app.use((err, req, res, next) => {
 /* Schedule to delete activities after 30 days
     calls controller in the controllers/activityController.js file */ 
 const cron = require("node-cron");
-cron.schedule("23 1 * * *", () => {
+cron.schedule(deleteSchedule, () => {
         http.request(
-            "http://localhost:3000/info", 
+            `${url}:${port}/info`, 
             { method: "DELETE" }, 
             activityController.deleteOldActivities
         );

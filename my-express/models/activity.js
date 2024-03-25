@@ -55,4 +55,7 @@ const activitySchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Activity', activitySchema, "activities")
+const Activity = mongoose.model('Activity', activitySchema, "activities")
+const Details = mongoose.model("Details", detailsSchema)
+
+module.exports = { Activity, Details }

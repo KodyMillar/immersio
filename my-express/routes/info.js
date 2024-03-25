@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const Activity = require('../models/activity')
-const mongodb = require("mongodb")
+const Activity = require('../models/activity').Activity
+const Details = require("../models/activity").Details
+const mongoose = require("mongoose")
 
 // Get all activities data
 router.get('/', async (req, res) => {
@@ -57,21 +58,52 @@ router.post('/', async (req, res) => {
 /* Request for storing user activities
     Creates an activity or updates them if they exist */
 router.put('/', async (req, res) => {
-    try {
-        await Activity.updateOne(
-            { 
+    let errorMessage = "";
+
+    // Check enum values first
+    if (!Activity.schema.path("activity.itemType").enumValues.includes(req.body.activity.itemType)) {
+        errorMessage += `Invalid value ${req.body.activity.itemType} for itemType`
+    }
+    if (!Details.schema.path("activityType").enumValues.includes(req.body.activity.details[0].activityType)) {
+        errorMessage += errorMessage ? ", " : "";
+        errorMessage += `Invalid value ${req.body.activity.details[0].activityType} for activityType`
+    }
+
+    if (errorMessage) {
+        res.status(400).json({ message: errorMessage});
+    }
+    else {
+        try {
+            const searchCriteria = {
                 "userId": req.body.userId, 
-                "activity.courseId": req.body.activity.courseId, 
-                "activity.lessonId": req.body.activity.lessonId,
-                "activity.itemId": req.body.activity.itemId,
-                "activity.itemType": req.body.activity.itemType
-            },
-            { $push: { "activity.details" : req.body.activity.details[0] }},
-            { upsert: true }
-            )
-        res.status(201).send("Success!")
-    } catch(err) {
-        res.status(400).json({ message: err.message })
+                    "activity.courseId": req.body.activity.courseId, 
+                    "activity.lessonId": req.body.activity.lessonId,
+                    "activity.itemId": req.body.activity.itemId,
+                    "activity.itemType": req.body.activity.itemType
+            }
+            
+            const activity = await Activity.findOne(searchCriteria, 
+                { "activity.details": 1 });
+
+            if (activity) {
+                if (activity.activity.details.length === 50) {
+                    const result = await Activity.updateOne(searchCriteria,
+                        { $set: { "activity.details.49" : req.body.activity.details[0] }},
+                        {upsert: false}
+                        );
+                    return res.status(201).json({result});
+                }
+            }
+            
+            const result = await Activity.updateOne(searchCriteria,
+                { $push: { "activity.details" : req.body.activity.details[0] }},
+                { upsert: true }
+                )
+            res.status(201).json({result});
+            
+        } catch(err) {
+            res.status(400).json({ message: err.message })
+        }
     }
 })
 

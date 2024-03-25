@@ -9,7 +9,7 @@ const detailsSchema = new mongoose.Schema({
     },
     activityType: {
         type: String,
-        enum: ['Answer', 'Play', 'Pause', 'Skip', 'Resume', 'Restart'],
+        enum: process.env.ACTIVITY_TYPE_ENUM.split(","),
         required: true
     },
     timeSpent: {
@@ -48,11 +48,14 @@ const activitySchema = new mongoose.Schema({
         },
         itemType: {
             type: String,
-            enum: ['Drill', 'Dialogue', 'Video', 'Vocabulary'],
+            enum: process.env.ITEM_TYPE_ENUM.split(","),
             required: true
         },
         details: [detailsSchema]
     }
 })
 
-module.exports = mongoose.model('Activity', activitySchema, "activities")
+const Activity = mongoose.model('Activity', activitySchema, "activities")
+const Details = mongoose.model("Details", detailsSchema)
+
+module.exports = { Activity, Details }

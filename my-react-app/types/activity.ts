@@ -1,7 +1,8 @@
 type ActivityDetail = {
     timestamp: number;
-    activityType: 'Answer' | 'Play' | 'Pause' | 'Skip' | 'Resume' | 'Restart';
+    activityType: 'Answer' | 'Play' | 'Pause' | 'Skip' | 'Resume' | 'Replay';
     timeSpent: number;
+    videoTime?: number,
     activityResponse?: string; 
 }
 

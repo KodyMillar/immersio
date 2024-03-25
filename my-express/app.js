@@ -1,16 +1,21 @@
 require('dotenv').config()
 
-const express = require('express')
-const cors = require('cors')
+const express = require('express');
+const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs')
-const swaggerDocument = YAML.load('./openapi.yml')
-const app = express()
-const helmet = require('helmet')
-const mongoose = require('mongoose')
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./openapi.yml');
+const app = express();
+const helmet = require('helmet');
+const mongoose = require('mongoose');
 const http = require("http");
-const activityController = require("./controllers/activityController").activityController
-const PORT = process.env.PORT || 3000;
+const activityController = require("./controllers/activityController").activityController;
+
+const port = process.env.PORT;
+const url = process.env.URL;
+const deleteSchedule = process.env.DELETE_SCHEDULE;
+const pkiURL = process.env.PKI_URL;
+const timeZone = process.env.TIMEZONE;
 
 // Sever Configuration
 // const fs = require('fs');
@@ -23,8 +28,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(express.json());
-app.use(cors())
-app.use(helmet())
+app.use(cors());
+app.use(helmet());
 
 // MongoDB Connection
 mongoose.connect(process.env.DATABASE_URL)
@@ -37,12 +42,12 @@ const infoRoute = require('./routes/info')
 app.use('/info', infoRoute)
 app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.get('/.well-known/pki-validation/CC14716A241C7005FE4517DE8AB41337.txt', (req, res) => {
+app.get(pkiURL, (req, res) => {
     res.sendFile("./CC14716A241C7005FE4517DE8AB41337.txt", { root: __dirname });
 })
 
 // Start the server
-app.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}/api`))
+app.listen(port, () => console.log(`Server started at ${url}:${port}/api`));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
@@ -58,16 +63,16 @@ app.use((err, req, res, next) => {
 /* Schedule to delete activities after 30 days
     calls controller in the controllers/activityController.js file */ 
 const cron = require("node-cron");
-cron.schedule("23 1 * * *", () => {
+cron.schedule(deleteSchedule, () => {
         http.request(
-            "http://localhost:3000/info", 
+            `${url}:${port}/info`, 
             { method: "DELETE" }, 
             activityController.deleteOldActivities
         );
     }, 
     {
         scheduled: true,
-        timezone: "Etc/UTC"
+        timezone: timeZone
     }
 );
 

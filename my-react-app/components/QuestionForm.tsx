@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import activityData from "@/types/activity"
 import { Button } from "./ui/button";
 import axios from "axios";
@@ -7,7 +7,7 @@ import axios from "axios";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Question() {
-  const [activity, setActivity] = useState({
+  const [activity, setActivity] = useState<activityData>({
     userId: '',
     activity: {
       courseId: 4640,
@@ -23,7 +23,7 @@ export default function Question() {
     }
   });
 
-  const[startingTime, setStartingTime] = useState(Date.now());
+  const startingTime = useRef(Date.now());
 
   function convertToUTC(timestamp: number) {
     const date = new Date(timestamp);
@@ -32,7 +32,7 @@ export default function Question() {
 
   function updateActivityTimeSpent(detailId: number) {
     setActivity(prev => {
-      const startTime  = startingTime;
+      const startTime  = startingTime.current;
       const endTime = Date.now();
       const timeSpent = endTime - startTime;
       convertToUTC(endTime);
@@ -91,7 +91,7 @@ export default function Question() {
 
     try {
       axios.post(`${apiUrl}/info`, updatedActivity)
-      setStartingTime(Date.now());
+      startingTime.current = Date.now();
       console.log('Activity submitted:', updatedActivity)
     } catch (error) {
         console.error('Error submitting:', error)

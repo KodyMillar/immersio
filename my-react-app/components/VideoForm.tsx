@@ -7,7 +7,8 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function VideoForm() {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const [startingTime, setStartingTime] = useState(Date.now());
+    // const [startingTime, setStartingTime] = useState(Date.now());
+    const startingTime = useRef(Date.now());
     const playType = useRef("Play");
     const videoTimeRef = useRef([[0, 0]]);
     let videoTimeInterval: any;
@@ -50,7 +51,7 @@ export default function VideoForm() {
  
         let activityType = playType.current;
         const endTime = Date.now();
-        const startTime = startingTime;
+        const startTime = startingTime.current;
         const timeSpent = endTime - startTime;
         const videoTime = videoRef.current?.currentTime;
         
@@ -88,7 +89,7 @@ export default function VideoForm() {
     const handleVideoSkipEvent = (event: any) => {
         const type = "Skip";
         const endTime = Date.now();
-        const timeSpent = endTime - startingTime;
+        const timeSpent = endTime - startingTime.current;
         const videoTime = videoRef.current?.currentTime;
         activityRef.current.activity.details = [
             {
@@ -110,7 +111,7 @@ export default function VideoForm() {
 
         const type = "Pause";
         const endTime = Date.now();
-        const timeSpent = endTime - startingTime;
+        const timeSpent = endTime - startingTime.current;
         const videoTime = videoRef.current?.currentTime;
     
         activityRef.current.activity.details = [
@@ -128,8 +129,8 @@ export default function VideoForm() {
     const sendActivityUpdate = async () => {
         try {
             // axios.post(`${apiUrl}/info`, acztivity);
-            axios.put(`${apiUrl}info`, activityRef.current);
-            setStartingTime(Date.now());
+            axios.put(`${apiUrl}/info`, activityRef.current);
+            startingTime.current = Date.now();
             console.log(activityRef.current);
         } catch (error) {
             console.error('Error updating activity:', error);
@@ -138,7 +139,7 @@ export default function VideoForm() {
 
     // Reset timer and most recent activity when user enters or leaves page
     const handleLoadEvent = (event: any) => {
-        setStartingTime(Date.now());
+        startingTime.current = Date.now();
     }
 
     // Attach event listeners on component mount

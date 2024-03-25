@@ -32,40 +32,41 @@ export default function Question() {
 
   function updateActivityTimeSpent(detailId: number) {
     setActivity(prev => {
-      const startTime  = startingTime.current;
+      const startTime = startingTime.current;
       const endTime = Date.now();
       const timeSpent = endTime - startTime;
-      convertToUTC(endTime);
-
-      const updatedDetails = {
-        ...prev.activity.details,
-        [detailId]: {
-          ...prev.activity.details[detailId],
-          timeSpent,
-          timestamp: endTime,
-        }
-      }
+      
+      //@ts-ignore
+      const updatedDetails = prev.activity.details.slice(); 
+      updatedDetails[detailId] = { 
+        ...updatedDetails[detailId],
+        timeSpent,
+        timestamp: endTime,
+      };
+  
       return {
         ...prev,
         activity: {
           ...prev.activity,
           details: updatedDetails
         }
-      }
-    })
+      };
+    });
   }
+  
 
   function handleResponse(type: string) {
-    const latestDetailId = Object.keys(activity.activity.details).length;
     setActivity(prev => {
-      const updatedDetails = {
-        ...prev.activity.details,
-        [latestDetailId]: {
-          ...prev.activity.details[latestDetailId],
-          activityResponse: type,
-        },
+      const newDetail = {
+        activityType: 'Answer',
+        activityResponse: type,
+        timestamp: Date.now(), // You might want to handle timestamp in a different way
+        timeSpent: 0, // This should be updated later when the actual time spent is known
       };
-
+      
+      // @ts-ignore
+      const updatedDetails = [...prev.activity.details, newDetail]; // Append the new detail
+  
       return {
         ...prev,
         activity: {
@@ -75,6 +76,8 @@ export default function Question() {
       };
     });
 
+    //@ts-ignore
+    const latestDetailId = activity.activity.details.length;
     updateActivityTimeSpent(latestDetailId); 
     console.log(activity);
   }

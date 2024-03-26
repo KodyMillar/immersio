@@ -81,11 +81,11 @@ pipeline {
                 echo "The workspace directory is ${env.WORKSPACE}"
             }
         }
-         stage('Install Dependencies') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    sh 'cd my-express'
-                    sh 'npm install' 
+                dir('my-express') {
+                    sh 'npm install'
+                    sh 'npm install dotenv'
                 }
             }
         }

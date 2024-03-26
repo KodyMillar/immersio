@@ -84,22 +84,18 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('my-express') {
-                    script {
-                        sh 'npm install'
-                    }
+                    sh 'npm install'
                 }
             }
         }
         stage('Run Tests') {
             steps {
                 dir('my-express') {
-                    script {
-                        try {
-                            sh 'npm test'
-                        } catch (Exception e) {
-                            echo "Tests failed: ${e.getMessage()}"
-                            throw e 
-                        }
+                    try {
+                        sh 'npm test'
+                    } catch (Exception e) {
+                        echo "Tests failed: ${e.getMessage()}"
+                        throw e 
                     }
                 }
             }

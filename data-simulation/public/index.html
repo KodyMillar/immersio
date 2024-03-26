@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Data Generator</title>
+</head>
+<body>
+    <button id="start">Generate User Activity Data</button>
+    <button id="stop">Stop</button>
+
+    <script>
+
+        document.getElementById('start').addEventListener('click', async () => {
+            try {
+
+                window.open('http://localhost:3010/newpage.html', '_blank');
+                window.location.href = "http://localhost:3010/generateData";
+
+            
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        document.getElementById('stop').addEventListener('click', async () => {
+            try {
+                window.location.href = 'http://localhost:3010/stopDataGeneration';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

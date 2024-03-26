@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon app.js",
-    "test": "jest --verbose"
+    "test1": "jest --verbose tests/activity.test.js",
+    "test2": "jest --verbose tests/info.test.js"
   },
   "keywords": [],
   "author": "",
@@ -15,8 +16,10 @@
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
+    "javascript-time-ago": "^2.5.9",
     "mongodb": "^6.3.0",
     "mongoose": "^8.1.1",
+    "node-cron": "^3.0.3",
     "swagger-ui-express": "^5.0.0",
     "yamljs": "^0.3.0"
   },

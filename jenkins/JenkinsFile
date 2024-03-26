@@ -84,6 +84,7 @@ pipeline {
          stage('Install Dependencies') {
             steps {
                 script {
+                    sh 'cd my-express'
                     sh 'npm install' 
                 }
             }

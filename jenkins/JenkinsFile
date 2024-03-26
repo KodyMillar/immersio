@@ -66,7 +66,7 @@ pipeline {
                     checkout([
                         $class: 'GitSCM', 
                         userRemoteConfigs: [[
-                            url: 'https://github.com/Immersio-io/immersio-ingestion',
+                            url: 'https://github.com/Immersio-io/immersio-ingestion/tree/jenkins',
                             credentialsId: '7f43d86b-8859-4ff5-81e7-27590c2dcffb'
 
                         ]], 

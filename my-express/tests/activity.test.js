@@ -1,6 +1,7 @@
+require('dotenv').config()
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const Activity = require('../models/activity');
+const { Activity, Details } = require('../models/activity');
 
 let mongod;
 beforeAll(async () => {
@@ -25,15 +26,14 @@ describe('Activity Schema Validation', () => {
             "lessonId": 12839012,
             "itemId": "absc543ert43iou",
             "itemType": "Video",
-            "details": {
-              1: 
-                {
-                  "timestamp": 1238904801, 
-                  "activityType": "Answer",
-                  "timeSpent": "238023",
-                  "activityResponse": "INCORRECT"
-                }
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
               }
+            ]
           }
       }
     )
@@ -50,15 +50,14 @@ describe('Activity Schema Validation', () => {
             "lessonId": 12839012,
             "itemId": "absc543ert43iou",
             "itemType": "Video",
-            "details": {
-              "1": 
-                {
-                  "timestamp": 1238904801, 
-                  "activityType": "Answer",
-                  "timeSpent": "238023",
-                  "activityResponse": "INCORRECT"
-                }
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
               }
+            ]
           }
       }
     )
@@ -72,15 +71,14 @@ describe('Activity Schema Validation', () => {
             "lessonId": 12839012,
             "itemId": "absc543ert43iou",
             "itemType": "Video",
-            "details": {
-              "1": 
-                {
-                  "timestamp": 1238904801, 
-                  "activityType": "Answer",
-                  "timeSpent": "238023",
-                  "activityResponse": "INCORRECT"
-                }
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
               }
+            ]
           }
       }
     )
@@ -94,15 +92,14 @@ describe('Activity Schema Validation', () => {
             "lessonId": 12839012,
             "itemId": "absc543ert43iou",
             "itemType": "empty",
-            "details": {
-              "1": 
-                {
-                  "timestamp": 1238904801, 
-                  "activityType": "Answer",
-                  "timeSpent": "238023",
-                  "activityResponse": "INCORRECT"
-                }
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
               }
+            ]
           }
       }
     )

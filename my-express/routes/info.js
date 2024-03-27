@@ -112,20 +112,21 @@ router.put('/:id', async (req, res) => {
     try {
         const updatedActivity = await Activity.findByIdAndUpdate(
             req.params.id,
-            {
-                userId: req.body.userId,
-                activity: {
-                    timestamp: req.body.activity.timestamp,
-                    itemType: req.body.activity.itemType,
-                    itemId: req.body.activity.itemId,
-                    courseId: req.body.activity.courseId,
-                    lessonId: req.body.activity.lessonId,
-                    activityDetails: {
-                        activityType: req.body.activity.activityDetails.activityType,
-                        activityResponse: req.body.activity.activityDetails.activityResponse
-                    }
-                }
-            },
+            req.body,
+            // {
+            //     userId: req.body.userId,
+            //     activity: {
+            //         timestamp: req.body.activity.timestamp,
+            //         itemType: req.body.activity.itemType,
+            //         itemId: req.body.activity.itemId,
+            //         courseId: req.body.activity.courseId,
+            //         lessonId: req.body.activity.lessonId,
+            //         activityDetails: {
+            //             activityType: req.body.activity.activityDetails.activityType,
+            //             activityResponse: req.body.activity.activityDetails.activityResponse
+            //         }
+            //     }
+            // },
             { new: true } // Return the updated document
         );
 
@@ -149,7 +150,7 @@ router.put("/update/:id", async (req, res) => {
 })
 
 
-// Delete an activity
+// Delete an activity (not for user)
 router.delete('/:id', async(req, res) => {
     try {
         // const result = await Activity.findByIdAndDelete(req.params.id)[[]]

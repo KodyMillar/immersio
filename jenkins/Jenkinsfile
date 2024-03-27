@@ -85,6 +85,7 @@ pipeline {
             steps {
                 dir('my-express') {
                     script {
+                        sh 'npm update ajv'
                         sh 'npm install'
                         sh 'npm install dotenv'
                     }

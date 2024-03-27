@@ -1,8 +1,11 @@
+require('dotenv').config()
+process.env.ACTIVITY_TYPE_ENUM = 'Answer,Play,Pause,Skip,Resume,Replay';
+process.env.ITEM_TYPE_ENUM='Drill,Dialogue,Video,Vocabulary'
 const mongoose = require('mongoose');
 const request = require('supertest');
 const route = require('../routes/info.js')
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const Activity = require('../models/activity');
+const { Activity, Details } = require('../models/activity');
 const express = require('express');
 const app = express();
 
@@ -14,14 +17,14 @@ for (let i = 0; i < 8; i++) {
     const video = {
         userId: "12345" + userIdCounter++,
         activity: {
-            details: {
-                "1": {
+            details: [
+                {
                     timestamp: 1238904801,
                     activityType: "Answer",
                     timeSpent: "238023",
                     activityResponse: "INCORRECT"
-                }
-            },
+                },
+            ],
             courseId: 12930123 + i,
             lessonId: 12839012,
             itemId: "abc123_" + num,
@@ -114,10 +117,35 @@ describe('POST /', () => {
         expect(res.status).toBe(201);
         expect(res.body.userId).toBe(videos[0].userId);
     });
+
+    it('should handle internal errors', async () => {
+        const res = await request(app).post('/').send(invalidItemType);
+        console.log(res.body.message)
+        expect(res.status).toBe(400);
+    });
 });
 
 
-
+const invalidItemType = new Activity(
+    {
+        "userId": "12345",
+        "activity":
+        {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "empty",
+            "details": [
+            {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+            }
+            ]
+        }
+    }
+)
 
 
 

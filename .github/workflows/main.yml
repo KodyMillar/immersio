@@ -29,4 +29,5 @@ jobs:
     - name: Run Application
       run: |
         cd my-express
-        npm test
+        npm run test1
+        npm run test2

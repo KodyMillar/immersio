@@ -47,7 +47,8 @@ app.get(pkiURL, (req, res) => {
 })
 
 // Start the server
-app.listen(port, () => console.log(`Server started at ${url}:${port}/api`));
+// app.listen(port, () => console.log(`Server started at ${url}:${port}/api`));
+app.listen(port, () => console.log(`Server started at ${url}:${port}/info`));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

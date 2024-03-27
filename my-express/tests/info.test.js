@@ -120,7 +120,6 @@ describe('POST /', () => {
 
     it('should handle internal errors', async () => {
         const res = await request(app).post('/').send(invalidItemType);
-        console.log(res.body.message)
         expect(res.status).toBe(400);
     });
 });
@@ -148,9 +147,52 @@ const invalidItemType = new Activity(
 )
 
 
+describe('PUT /:id', () => {
+    it('should update an activity', async () => {
+        const userIdToUpdate = videos[2].userId;
+        
+        const res = await request(app).put(`/${id}`)
+            .send(updatedActivity);
+
+        delete res.body.activity.details[0]._id;
+
+        expect(res.status).toBe(200);
+        expect(res.body.userId).toEqual(updatedActivity.userId)
+        expect(res.body.activity).toEqual(updatedActivity.activity)
+    });
+
+    it('should handle non-existent ID', async () => {
+        const nonExistentId = '60909c0dd7b0f2841cf45e3e'; // Use a non-existent ID
+        const res = await request(app).put(`/${nonExistentId}`).send(updatedActivity);
+    
+        expect(res.status).toBe(404);
+        expect(res.body).toEqual({ message: 'Cannot find activity to update'});
+    });
+
+    it('cshould handle invalid ID', async () => {
+        const invalidID = 'abc'; 
+        const res = await request(app).put(`/${invalidID}`).send(updatedActivity);
+    
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Cast to ObjectId failed for value "abc" (type string) at path "_id" for model "Activity"' });
+    });
+})
 
 
+describe('DELETE /:id', () => {
+    it('delete an activity', async () => {
+        // id is retrieved from 'GET /'
+        const res = await request(app).delete(`/${id}`);
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({ message: 'Deleted activity' });
+    });
 
+    it('cannot find an activity', async () => {
+        const res = await request(app).delete(`/whoami`);
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Cast to ObjectId failed for value "whoami" (type string) at path "_id" for model "Activity"' });
+    });    
+});
 
 
 
@@ -220,20 +262,20 @@ const invalidItemType = new Activity(
 // })
 
 
-// const updatedActivity = {
-//     userId: "777",
-//     activity: {
-//         details: {
-//             "1": {
-//                 timestamp: 1238904801,
-//                 activityType: "Answer",
-//                 timeSpent: "238023",
-//                 activityResponse: "INCORRECT"
-//             }
-//         },
-//         courseId: 555,
-//         lessonId: 111,
-//         itemId: "abc123_" + num,
-//         itemType: "Video"
-//     }
-// }
+const updatedActivity = {
+    userId: "777",
+    activity: {
+        details: [
+            {
+                timestamp: 1238904801,
+                activityType: "Answer",
+                timeSpent: 238023,
+                activityResponse: "INCORRECT"
+            }
+        ],
+        courseId: 555,
+        lessonId: 111,
+        itemId: "abc123_" + num,
+        itemType: "Video"
+    }
+}

@@ -39,22 +39,6 @@ router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
     res.json(res.activity)
 })
 
-// Create a new activity
-router.post('/', async (req, res) => {
-    try {
-        const activity = new Activity(req.body)
-        const newActivity = await activity.save()
-        res.status(201).json(newActivity)
-    } catch (err) {
-        if (err instanceof TypeError) {
-            res.status(400).send("Incorrect value types")
-        }
-        else {
-            res.status(400).json({ message: err.message })
-        }
-    } 
-})
-
 /* Request for storing user activities
     Creates an activity or updates them if they exist */
 router.put('/', async (req, res) => {

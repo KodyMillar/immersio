@@ -52,7 +52,7 @@ afterAll(async () => {
 
 let id;
 describe('GET /', () => {
-    it('get all activites from the route', async () => {
+    it('should get all activites from the route', async () => {
         const res = await request(app).get('/');
 
         id = res.body[0]._id;
@@ -66,7 +66,7 @@ describe('GET /', () => {
         }
     });
     
-    it('handle internal errors', async () => {
+    it('should handle internal errors', async () => {
         // Mock Activity.find() to throw an error
         jest.spyOn(Activity, 'find').mockImplementation(() => {
             throw new Error('Mocked internal error');
@@ -79,7 +79,7 @@ describe('GET /', () => {
 
 
 describe('GET /getByItem/:itemId', () => {
-    it('get matched actvities from route', async () => {
+    it('should get matched actvities from route', async () => {
         const res = await request(app).get('/getByItem/abc123_0');
         expect(res.body).toHaveLength(4);
         expect(res.body[0].activity.itemId).toBe("abc123_0");
@@ -88,7 +88,7 @@ describe('GET /getByItem/:itemId', () => {
         expect(res.body[3].activity.itemId).toBe("abc123_0");
     });
 
-    it('handle internal errors', async () => {
+    it('should handle internal errors', async () => {
         // Mock Activity.find() to throw an error
         jest.spyOn(Activity, 'find').mockImplementation(() => {
             throw new Error('Mocked internal error');
@@ -101,7 +101,7 @@ describe('GET /getByItem/:itemId', () => {
 
 
 describe('GET /user/:userid', () => {
-    it('get one user info from route', async () => {
+    it('should get one user info from route', async () => {
         const res = await request(app).get(`/user/${videos[0].userId}`);
         expect(res.body[0].activity.itemId).toBe(videos[0].activity.itemId);
     });
@@ -109,12 +109,47 @@ describe('GET /user/:userid', () => {
 
 
 describe('POST /', () => {
-    it('get one user info from route', async () => {
+    it('should get one user info from route', async () => {
         const res = await request(app).post('/').send(videos[0]);
         expect(res.status).toBe(201);
         expect(res.body.userId).toBe(videos[0].userId);
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // describe('DELETE /:id', () => {

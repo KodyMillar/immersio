@@ -1,60 +1,113 @@
-require('dotenv').config();
+require('dotenv').config()
 const mongoose = require('mongoose');
-const Activity = require('../models/activity.js');
-
 const { MongoMemoryServer } = require('mongodb-memory-server');
+const { Activity, Details } = require('../models/activity');
 
 let mongod;
+beforeAll(async () => {
+  mongod = await MongoMemoryServer.create();
+  const uri = mongod.getUri();
+  await mongoose.connect(uri);
+});
 
-describe('Activity Model', () => {
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-    const uri = mongod.getUri();
-    await mongoose.connect(uri);
-  });
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongod.stop();
+});
 
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongod.stop();
-  });
-
-  test('should save an activity to the database', async () => {
-    const video = {
-      "userId": "12345",
-      "activity":
-        {
-          "courseId": 12930123,
-          "lessonId": 12839012,
-          "itemId": "absc543ert43iou",
-          "itemType": "Video",
-          "details": {
-            1: 
+describe('Activity Schema Validation', () => {
+  it('should validate a valid activity', async () => {
+    const validVideo = new Activity(
+      {
+        "userId": "12345",
+        "activity":
+          {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "Video",
+            "details": [
               {
                 "timestamp": 1238904801, 
                 "activityType": "Answer",
                 "timeSpent": "238023",
                 "activityResponse": "INCORRECT"
-              },
-            2: 
-              {
-                "timestamp": "1283912302",
-                "activityType": "Answer",
-                "timeSpent": 2430980234,
-                "videoTimeCode": "1:23",
-                "activityResponse": "PLAY"
               }
-            }
-        }
-    }
-
-    // Save the activity to the database
-    const savedActivity = await Activity.create(video);
-
-    // Retrieve the saved activity from the database
-    const retrievedActivity = await Activity.findById(savedActivity._id);
-
-    // Assert that the retrieved activity matches the saved activity
-    expect(retrievedActivity.toJSON()).toEqual(savedActivity.toJSON());
+            ]
+          }
+      }
+    )
+    await expect(validVideo.save()).resolves.toBeDefined();
   });
+
+  it('should validate an invalid activity', async () => {
+    const userIdMissing = new Activity(
+      {
+        // "userId": "12345",
+        "activity":
+          {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "Video",
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+              }
+            ]
+          }
+      }
+    )
+
+    const wrongCourseIdType = new Activity(
+      {
+        "userId": "12345",
+        "activity":
+          {
+            "courseId": "123abc",
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "Video",
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+              }
+            ]
+          }
+      }
+    )
+
+    const invalidItemType = new Activity(
+      {
+        "userId": "12345",
+        "activity":
+          {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "empty",
+            "details": [
+              {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+              }
+            ]
+          }
+      }
+    )
+
+    await expect(userIdMissing.save()).rejects.toThrow();
+    await expect(wrongCourseIdType.save()).rejects.toThrow();
+    await expect(invalidItemType.save()).rejects.toThrow();
+  });
+
 });
 

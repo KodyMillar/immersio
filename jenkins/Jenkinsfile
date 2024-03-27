@@ -86,6 +86,7 @@ pipeline {
                 dir('my-express') {
                     script {
                         sh 'npm install'
+                        sh 'npm install dotenv'
                     }
                 }
             }
@@ -95,8 +96,8 @@ pipeline {
                 dir('my-express') {
                     script {
                         try {
-                            sh 'npm test1'
-                            sh 'npm test2'
+                            sh 'npm run test1'
+                            sh 'npm run test2'
                         } catch (Exception e) {
                             echo "Tests failed: ${e.getMessage()}"
                             throw e 

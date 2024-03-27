@@ -1,4 +1,6 @@
 require('dotenv').config()
+process.env.ACTIVITY_TYPE_ENUM = 'Answer,Play,Pause,Skip,Resume,Replay';
+process.env.ITEM_TYPE_ENUM='Drill,Dialogue,Video,Vocabulary'
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { Activity, Details } = require('../models/activity');

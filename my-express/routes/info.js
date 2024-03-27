@@ -85,6 +85,8 @@ router.put('/', async (req, res) => {
             const activity = await Activity.findOne(searchCriteria, 
                 { "activity.details": 1 });
 
+            // console.log(activity)
+
             if (activity) {
                 if (activity.activity.details.length === 50) {
                     const result = await Activity.updateOne(searchCriteria,

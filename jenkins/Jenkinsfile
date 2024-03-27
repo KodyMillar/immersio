@@ -85,8 +85,9 @@ pipeline {
             steps {
                 dir('my-express') {
                     script {
+                        sh 'nvm install 20.5.1'
+                        sh 'nvm use 20.5.1'
                         sh 'npm install'
-                        sh 'npm install uri-js@4.2.2'
                         sh 'npm install dotenv'
                     }
                 }

@@ -44,6 +44,7 @@ beforeAll(async () => {
     const uri = mongod.getUri();
     await mongoose.connect(uri);
     await Activity.insertMany(videos)
+    await Activity.insertMany(fiftyItems)
 });
 
 
@@ -111,40 +112,110 @@ describe('GET /user/:userid', () => {
 });
 
 
-describe('POST /', () => {
-    it('should get one user info from route', async () => {
-        const res = await request(app).post('/').send(videos[0]);
-        expect(res.status).toBe(201);
-        expect(res.body.userId).toBe(videos[0].userId);
-    });
+// describe('POST /', () => {
+//     it('should get one user info from route', async () => {
+//         const res = await request(app).post('/').send(videos[0]);
+//         expect(res.status).toBe(201);
+//         expect(res.body.userId).toBe(videos[0].userId);
+//     });
 
-    it('should handle internal errors', async () => {
-        const res = await request(app).post('/').send(invalidItemType);
+//     it('should handle internal errors', async () => {
+//         const res = await request(app).post('/').send(invalidItemType);
+//         expect(res.status).toBe(400);
+//     });
+// });
+
+
+describe('PUT /', () => {
+    it('should handle error of invalid value for item type', async () => {
+        const res = await request(app).put(`/`).send(invalidItemType);
+    
         expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Invalid value empty for itemType'});
     });
+
+    it('should handle error of invalid value for item type', async () => {
+        const res = await request(app).put(`/`).send(invalidActivityType);
+    
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Invalid value empty for activityType'});
+    });
+
+    it('should add a new activity', async () => {
+        let initialActivity = await Activity.find();
+        expect(initialActivity.length).toBe(9);
+
+        const res = await request(app).put(`/`).send(updatedActivity);
+
+        const modifiedActivity = await Activity.find();
+        expect(modifiedActivity.length).toBe(10);
+
+
+        delete res.body.result.upsertedId;    
+        expect(res.status).toBe(201);
+        expect(res.body).toEqual(
+            {"result": {
+                "acknowledged": true, 
+                "matchedCount": 0, 
+                "modifiedCount": 0, 
+                "upsertedCount": 1
+            }}
+        );
+    });
+
+    it('should add a detail to an existing activity', async () => {
+        let initialActivity = await Activity.find();
+        expect(initialActivity.length).toBe(10);
+        expect(initialActivity[2].activity.details.length).toBe(1);
+
+        const res = await request(app).put(`/`).send(videos[2]);
+
+        const modifiedActivity = await Activity.find();
+        expect(modifiedActivity.length).toBe(10);
+        expect(modifiedActivity[2].activity.details.length).toBe(2);
+
+
+        delete res.body.result.upsertedId;
+        expect(res.status).toBe(201);
+        expect(res.body).toEqual(
+            {"result": {
+                "acknowledged": true, 
+                "matchedCount": 1, 
+                "modifiedCount": 1, 
+                "upsertedCount": 0
+            }}
+        );
+    });
+
+    it('should modify one detail', async () => {
+        let initialActivity = await Activity.find();
+        expect(initialActivity[8].activity.details.length).toBe(50);
+
+        const res = await request(app).put(`/`).send(fiftyOneItems);
+
+        delete res.body.result.upsertedId;
+        const modifiedActivity = await Activity.find();
+
+        expect(modifiedActivity[8].activity.details.length).toBe(50);
+        expect(modifiedActivity[8].activity.details[49].timestamp).toEqual(fiftyOneItems.activity.details[0].timestamp);
+        expect(modifiedActivity[8].activity.details[49].activityType).toEqual(fiftyOneItems.activity.details[0].activityType);
+        expect(modifiedActivity[8].activity.details[49].timeSpent).toEqual(fiftyOneItems.activity.details[0].timeSpent);
+        expect(modifiedActivity[8].activity.details[49].activityResponse).toEqual(fiftyOneItems.activity.details[0].activityResponse);
+
+
+        expect(res.status).toBe(201);
+        expect(res.body).toEqual(
+            {"result": {
+                "acknowledged": true, 
+                "matchedCount": 1, 
+                "modifiedCount": 1, 
+                "upsertedCount": 0
+            }}
+        );
+    });
+
+
 });
-
-
-const invalidItemType = new Activity(
-    {
-        "userId": "12345",
-        "activity":
-        {
-            "courseId": 123,
-            "lessonId": 12839012,
-            "itemId": "absc543ert43iou",
-            "itemType": "empty",
-            "details": [
-            {
-                "timestamp": 1238904801, 
-                "activityType": "Answer",
-                "timeSpent": "238023",
-                "activityResponse": "INCORRECT"
-            }
-            ]
-        }
-    }
-)
 
 
 describe('PUT /:id', () => {
@@ -176,7 +247,7 @@ describe('PUT /:id', () => {
         expect(res.status).toBe(500);
         expect(res.body).toEqual({ message: 'Cast to ObjectId failed for value "abc" (type string) at path "_id" for model "Activity"' });
     });
-})
+});
 
 
 describe('DELETE /:id', () => {
@@ -195,10 +266,109 @@ describe('DELETE /:id', () => {
 });
 
 
+const detailsList = [];
+
+for (let i = 0; i < 50; i++) {
+    const details = {
+        timestamp: 1238904801 + i,
+        activityType: "Answer",
+        timeSpent: "238023",
+        activityResponse: "INCORRECT"
+    };
+    detailsList.push(details);
+}
+
+const fiftyItems =
+    {
+        "userId": "12345",
+        "activity":
+        {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "Drill",
+            "details": detailsList
+        }
+    }
+
+const fiftyOneItems =
+    {
+        "userId": "12345",
+        "activity":
+        {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "Drill",
+            "details": [
+                {
+                    timestamp: 1238904800,
+                    activityType: "Skip",
+                    timeSpent: 238023,
+                    activityResponse: "INCORRECT"
+                }
+            ]
+        }
+    }
+
+const invalidItemType = 
+    {
+        "userId": "12345",
+        "activity":
+        {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "empty",
+            "details": [
+            {
+                "timestamp": 1238904801, 
+                "activityType": "Answer",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+            }
+            ]
+        }
+    }
+
+const invalidActivityType = 
+    {
+        "userId": "12345",
+        "activity":
+        {
+            "courseId": 123,
+            "lessonId": 12839012,
+            "itemId": "absc543ert43iou",
+            "itemType": "Drill",
+            "details": [
+            {
+                "timestamp": 1238904801, 
+                "activityType": "empty",
+                "timeSpent": "238023",
+                "activityResponse": "INCORRECT"
+            }
+            ]
+        }
+    }
 
 
-
-
+const updatedActivity = {
+    userId: "777",
+    activity: {
+        details: [
+            {
+                timestamp: 1238904801,
+                activityType: "Answer",
+                timeSpent: 238023,
+                activityResponse: "INCORRECT"
+            }
+        ],
+        courseId: 555,
+        lessonId: 111,
+        itemId: "abc123_" + num,
+        itemType: "Video"
+    }
+}
 
 
 
@@ -262,20 +432,3 @@ describe('DELETE /:id', () => {
 // })
 
 
-const updatedActivity = {
-    userId: "777",
-    activity: {
-        details: [
-            {
-                timestamp: 1238904801,
-                activityType: "Answer",
-                timeSpent: 238023,
-                activityResponse: "INCORRECT"
-            }
-        ],
-        courseId: 555,
-        lessonId: 111,
-        itemId: "abc123_" + num,
-        itemType: "Video"
-    }
-}

@@ -111,21 +111,6 @@ describe('GET /user/:userid', () => {
     });
 });
 
-
-// describe('POST /', () => {
-//     it('should get one user info from route', async () => {
-//         const res = await request(app).post('/').send(videos[0]);
-//         expect(res.status).toBe(201);
-//         expect(res.body.userId).toBe(videos[0].userId);
-//     });
-
-//     it('should handle internal errors', async () => {
-//         const res = await request(app).post('/').send(invalidItemType);
-//         expect(res.status).toBe(400);
-//     });
-// });
-
-
 describe('PUT /', () => {
     it('should handle error of invalid value for item type', async () => {
         const res = await request(app).put(`/`).send(invalidItemType);
@@ -369,66 +354,3 @@ const updatedActivity = {
         itemType: "Video"
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// describe('DELETE /:id', () => {
-//     it('delete an activity', async () => {
-//         const userIdToDelete = videos[0].userId;
-        
-//         const res = await request(app).delete(`/${userIdToDelete}`);
-//         expect(res.status).toBe(200);
-//         expect(res.body).toEqual({ message: 'Deleted activity' });
-//     });
-
-//     it('cannot find an activity', async () => {
-//         const res = await request(app).delete(`/whoami`);
-//         expect(res.status).toBe(404);
-//         expect(res.body).toEqual({ message: 'Cannot find activity' });
-//     });    
-// });
-
-
-// describe('PUT /:id', () => {
-//     it('update an activity', async () => {
-//         const userIdToUpdate = videos[2].userId;
-//         console.log(userIdToUpdate);
-        
-//         const res = await request(app).put(`/${userIdToUpdate}`)
-//             .send(updatedActivity);
-//         // console.log(res);
-
-//         expect(res.status).toBe(200);
-//         expect(res.body.userId).toEqual(updatedActivity.userId)
-//         expect(res.body.activity).toEqual(updatedActivity.activity)
-//         console.log(res.body.activity)
-//     });
-
-//     it('cannot find an activity to update', async () => {
-//         const res = await request(app).put(`/whoami`);
-//         expect(res.status).toBe(404);
-//         expect(res.body).toEqual({ message: 'Cannot find activity to update'});
-//     });   
-// })
-
-

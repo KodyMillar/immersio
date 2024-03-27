@@ -85,7 +85,8 @@ pipeline {
             steps {
                 dir('my-express') {
                     script {
-                        sh 'npm install 20.5.1'
+                        sh 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash'
+                        sh 'nvm install 20.5.1'
                         sh 'npm install dotenv'
                     }
                 }

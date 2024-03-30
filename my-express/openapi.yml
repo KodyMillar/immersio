@@ -6,13 +6,13 @@ info:
 servers:
   - url: http://localhost:3000
 tags:
-  - name: /info
-    description: Info route options
+  - name: Activities
+    description: Activities management
 paths:
   /:
     get:
       tags:
-        - /info
+        - Activities
       summary: Get all activities data
       responses:
         '200':
@@ -25,10 +25,10 @@ paths:
                   $ref: '#/components/schemas/Activity'
         '500':
           description: Internal Server Error
-    post:
+    put:
       tags:
-        - /info
-      summary: Create a new activity
+        - Activities
+      summary: Create or update user activities
       requestBody:
         required: true
         content:
@@ -37,17 +37,17 @@ paths:
               $ref: '#/components/schemas/Activity'
       responses:
         '201':
-          description: New activity created
+          description: Activity created or updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Activity'
         '400':
-          description: Bad Request
+          description: Bad request if invalid data is provided
   /getByItem/{itemId}:
     get:
       tags:
-        - /info
+        - Activities
       summary: Get all activities that match the given itemId
       parameters:
         - name: itemId
@@ -57,7 +57,7 @@ paths:
             type: string
       responses:
         '200':
-          description: A list of activities
+          description: A list of activities matching the itemId
           content:
             application/json:
               schema:
@@ -66,11 +66,33 @@ paths:
                   $ref: '#/components/schemas/Activity'
         '500':
           description: Internal Server Error
+  /user/{userId}:
+    get:
+      tags:
+        - Activities
+      summary: Get activities by userid
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of activities for the specified user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '404':
+          description: User not found
   /{id}:
     get:
       tags:
-        - /info
-      summary: Get one activity data
+        - Activities
+      summary: Get one activity data by id
       parameters:
         - name: id
           in: path
@@ -79,7 +101,7 @@ paths:
             type: string
       responses:
         '200':
-          description: A single activity
+          description: A single activity data
           content:
             application/json:
               schema:
@@ -88,7 +110,48 @@ paths:
           description: Activity not found
     put:
       tags:
-        - /info
+        - Activities
+      summary: Update an individual activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '200':
+          description: Updated activity data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '404':
+          description: Activity not found
+    delete:
+      tags:
+        - Activities
+      summary: Delete an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity deleted
+        '404':
+          description: Activity not found
+  /update/{id}:
+    put:
+      tags:
+        - Activities
       summary: Update an activity response for a certain activity
       parameters:
         - name: id
@@ -107,29 +170,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: Update result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  modifiedCount:
-                    type: integer
-    delete:
-      tags:
-        - /info
-      summary: Delete an activity
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Activity deleted
-        '404':
-          description: Activity not found
+          description: Activity response updated
 components:
   schemas:
     Activity:
@@ -159,22 +200,21 @@ components:
               type: string
               enum: [Drill, Dialogue, Video, Vocabulary]
             details:
-              type: object
-              properties:
-                "1":
-                  type: object
-                  required:
-                    - timestamp
-                    - activityType
-                    - timeSpent
-                  properties:
-                    timestamp:
-                      type: integer
-                    activityType:
-                      type: string
-                      enum: [Answer, Play, Pause, Skip, Resume, Restart]
-                    timeSpent:
-                      type: integer
-                    activityResponse:
-                      type: string
-                      default: ""
+              type: array
+              items:
+                type: object
+                required:
+                  - timestamp
+                  - activityType
+                  - timeSpent
+                properties:
+                  timestamp:
+                    type: integer
+                  activityType:
+                    type: string
+                    enum: [Answer, Play, Pause, Skip, Resume, Restart]
+                  timeSpent:
+                    type: integer
+                  activityResponse:
+                    type: string
+                    default: ""

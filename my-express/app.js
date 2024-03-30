@@ -42,10 +42,6 @@ const infoRoute = require('./routes/info')
 app.use('/info', infoRoute)
 app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.get(pkiURL, (req, res) => {
-    res.sendFile("./CC14716A241C7005FE4517DE8AB41337.txt", { root: __dirname });
-})
-
 // Start the server
 // app.listen(port, () => console.log(`Server started at ${url}:${port}/api`));
 app.listen(port, () => console.log(`Server started at ${url}:${port}/info`));

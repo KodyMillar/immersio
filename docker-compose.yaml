@@ -17,8 +17,15 @@ services:
     build: ./my-express
     ports:
       - "3000:3000"
+      - "8080:8080"
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - URL=${URL}
+      - PORT=${PORT}
+      - DELETE_SCHEDULE=${DELETE_SCHEDULE}
+      - TIMEZONE=${TIMEZONE}
+      - ITEM_TYPE_ENUM=${ITEM_TYPE_ENUM}
+      - ACTIVITY_TYPE_ENUM=${ACTIVITY_TYPE_ENUM}
     restart: on-failure
     networks:
       - temp-network

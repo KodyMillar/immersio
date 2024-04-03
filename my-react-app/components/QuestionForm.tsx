@@ -18,7 +18,7 @@ export default function Question() {
         timestamp: Date.now(),
         activityType: 'Answer',
         timeSpent: 0,
-        activityResponse: '', 
+        activityResponse: 'Correct', 
       }]
     }
   });
@@ -60,8 +60,8 @@ export default function Question() {
       const newDetail = {
         activityType: 'Answer',
         activityResponse: type,
-        timestamp: Date.now(), // You might want to handle timestamp in a different way
-        timeSpent: 0, // This should be updated later when the actual time spent is known
+        timestamp: Date.now(), 
+        timeSpent: 0, 
       };
       
       // @ts-ignore
@@ -93,7 +93,7 @@ export default function Question() {
     }
 
     try {
-      axios.post(`${apiUrl}/info`, updatedActivity)
+      axios.put(`${apiUrl}/info`, updatedActivity)
       startingTime.current = Date.now();
       console.log('Activity submitted:', updatedActivity)
     } catch (error) {

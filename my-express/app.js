@@ -44,7 +44,7 @@ app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Start the server
 // app.listen(port, () => console.log(`Server started at ${url}:${port}/api`));
-app.listen(port, () => console.log(`Server started at ${url}:${port}/info`));
+app.listen(port, '0.0.0.0', () => console.log(`Server started at ${url}:${port}/info`));
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

@@ -81,24 +81,6 @@ pipeline {
                 echo "The workspace directory is ${env.WORKSPACE}"
             }
         }
-        stage('Print Paths') {
-            steps {
-                script {
-                    sh 'echo "Environment Variables:"'
-                    sh 'printenv'
-
-                    sh 'echo "Library Paths (ldconfig):"'
-                    sh 'ldconfig -p'
-
-                    sh 'echo "Library Paths (ldd):"'
-                    sh 'ldd --version'
-
-                    sh 'echo "Node.js Paths:"'
-                    sh 'which node'
-                    sh 'node --version'
-                }
-            }
-        }
         stage('Install OpenSSL') {
             steps {
                 sh 'wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb'
@@ -109,7 +91,8 @@ pipeline {
             steps {
                 dir('my-express') {
                     script {
-                        sh 'npm install'
+                        sh 'npm install -g n'
+                        sh 'n 20.5.1'
                         sh 'npm install dotenv'
                     }
                 }

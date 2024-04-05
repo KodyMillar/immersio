@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const Activity = require('../models/activity')
-const mongodb = require("mongodb")
+const Activity = require('../models/activity').Activity
+const Details = require("../models/activity").Details
 
 // Get all activities data
 router.get('/', async (req, res) => {

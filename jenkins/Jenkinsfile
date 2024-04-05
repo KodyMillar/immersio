@@ -88,6 +88,7 @@ pipeline {
                         sh 'npm install -g n'
                         sh 'n 20.5.1'
                         sh 'npm install dotenv'
+                        sh 'npm install openssl'
                     }
                 }
             }

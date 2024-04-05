@@ -101,7 +101,9 @@ pipeline {
         }
         stage('Install OpenSSL') {
             steps {
-                sh 'apt-get update && apt-get install -y libssl-dev' // Install OpenSSL library
+                sh 'apt-get update && apt-get install -y libssl-dev'
+                sh '$PATH = $PATH:/lib/x86_64-linux-gnu/'
+                sh 'echo $PATH'
             }
         }
 

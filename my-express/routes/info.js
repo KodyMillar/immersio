@@ -1,7 +1,24 @@
 const express = require('express')
 const router = express.Router()
-const Activity = require('../models/activity')
-const mongodb = require("mongodb")
+const Activity = require('../models/activity').Activity
+const Details = require("../models/activity").Details
+const mongoose = require("mongoose")
+
+
+router.post('/', async (req, res) => {
+    try {
+        const activity = new Activity(req.body)
+        const newActivity = await activity.save()
+        res.status(201).json(newActivity)
+    } catch (err) {
+        if (err instanceof TypeError) {
+            res.status(400).send("Incorrect value types")
+        }
+        else {
+            res.status(400).json({ message: err.message })
+        }
+    } 
+})
 
 // Get all activities data
 router.get('/', async (req, res) => {
@@ -23,50 +40,119 @@ router.get('/getByItem/:itemId', async (req, res) => {
     }
 })
 
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
+    res.json(res.activity)
+})
+
 // Get one activity data
 router.get('/:id', getActivity, (req, res) => {
     res.json(res.activity)
 })
 
-// Create a new activity
-router.post('/', async (req, res) => {
-    try {
-        const activity = new Activity({
-            userId: req.body.userId,
-            activity: {
-                courseId: req.body.activity.courseId,
-                lessonId: req.body.activity.lessonId,
-                itemId: req.body.activity.itemId,
-                itemType: req.body.activity.itemType,
-                details: {
-                    "1": {
-                        timestamp: req.body.activity.details["1"].timestamp,
-                        activityType: req.body.activity.details["1"].activityType,
-                        timeSpent: req.body.activity.details["1"].timeSpent,
-                        activityResponse: req.body.activity.details["1"].activityResponse
-                    }
+// Get activities by userid
+router.get('/user/:userId', getActivityByUserId ,async (req, res) => {
+    res.json(res.activity)
+})
+
+/* Request for storing user activities
+    Creates an activity or updates them if they exist */
+router.put('/', async (req, res) => {
+    let errorMessage = "";
+
+    // Check enum values first
+    if (!Activity.schema.path("activity.itemType").enumValues.includes(req.body.activity.itemType)) {
+        errorMessage += `Invalid value ${req.body.activity.itemType} for itemType`
+    }
+    if (!Details.schema.path("activityType").enumValues.includes(req.body.activity.details[0].activityType)) {
+        errorMessage += errorMessage ? ", " : "";
+        errorMessage += `Invalid value ${req.body.activity.details[0].activityType} for activityType`
+    }
+
+    if (errorMessage) {
+        res.status(400).json({ message: errorMessage});
+    }
+    else {
+        try {
+            const searchCriteria = {
+                "userId": req.body.userId, 
+                    "activity.courseId": req.body.activity.courseId, 
+                    "activity.lessonId": req.body.activity.lessonId,
+                    "activity.itemId": req.body.activity.itemId,
+                    "activity.itemType": req.body.activity.itemType
+            }
+            
+            const activity = await Activity.findOne(searchCriteria, 
+                { "activity.details": 1 });
+
+            // console.log(activity)
+
+            if (activity) {
+                if (activity.activity.details.length === 50) {
+                    const result = await Activity.updateOne(searchCriteria,
+                        { $set: { "activity.details.49" : req.body.activity.details[0] }},
+                        {upsert: false}
+                        );
+                    return res.status(201).json({result});
                 }
             }
-        })
-        const newActivity = await activity.save()
-        res.status(201).json(newActivity)
-    } catch (err) {
-        if (err instanceof TypeError) {
-            res.status(400).send("Incorrect value types")
-        }
-        else {
+            
+            const result = await Activity.updateOne(searchCriteria,
+                { $push: { "activity.details" : req.body.activity.details[0] }},
+                { upsert: true }
+                )
+            res.status(201).json({result});
+            
+        } catch(err) {
             res.status(400).json({ message: err.message })
         }
-    } 
+    }
 })
+
+// Update an individual activity
+router.put('/:id', async (req, res) => {
+    try {
+        const updatedActivity = await Activity.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            // {
+            //     userId: req.body.userId,
+            //     activity: {
+            //         timestamp: req.body.activity.timestamp,
+            //         itemType: req.body.activity.itemType,
+            //         itemId: req.body.activity.itemId,
+            //         courseId: req.body.activity.courseId,
+            //         lessonId: req.body.activity.lessonId,
+            //         activityDetails: {
+            //             activityType: req.body.activity.activityDetails.activityType,
+            //             activityResponse: req.body.activity.activityDetails.activityResponse
+            //         }
+            //     }
+            // },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedActivity) {
+            return res.status(404).json({ message: 'Cannot find activity to update' });
+        }
+
+        res.json(updatedActivity);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 // Update an activity response for a certain activity
-router.post("/update/:id", async (req, res) => {
-    const newResponse = req.body.activityReponse
-    await Activity.updateOne({ _id: req.params.id }, { $set: { "activity.activityDetails.activityReponse": newResponse }})
+router.put("/update/:id", async (req, res) => {
+    const newResponse = req.body.activityResponse
+    await Activity.updateOne(
+        { _id: req.params.id }, 
+        { $set: { "activity.details.1.activityResponse": newResponse }})
+    res.json(result)
 })
 
-// Delete an activity
+
+// Delete an activity (not for user)
 router.delete('/:id', async(req, res) => {
     try {
         // const result = await Activity.findByIdAndDelete(req.params.id)[[]]
@@ -80,6 +166,7 @@ router.delete('/:id', async(req, res) => {
     }
 })
 
+// Function to retrieve an activity for all users
 async function getActivity(req, res, next) {
     let activity
     try {
@@ -94,6 +181,22 @@ async function getActivity(req, res, next) {
     }
     res.activity = activity
     next();
+}
+
+// Function for getting activities from a user
+async function getActivityByUserId(req, res, next) {
+    let activities
+    try {
+        activities = await Activity.find({'userId': req.params.userId});
+        if (activities == null) {
+            return res.status(404).json({ message: 'Cannot find activity' })
+        }
+    
+    } catch (err) {
+        return res.status(500).json({ message: err.message })
+    }
+    res.activity = activities
+    next(); 
 }
 
 

@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  # mongo:
+  #   image: mongo
+  #   container_name: my_mongo
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: example
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   networks:
+  #     - temp-network
+  my-express:
+    container_name: my-express
+    build: ./my-express
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - URL=${URL}
+      - PORT=${PORT}
+      - DELETE_SCHEDULE=${DELETE_SCHEDULE}
+      - TIMEZONE=${TIMEZONE}
+      - ITEM_TYPE_ENUM=${ITEM_TYPE_ENUM}
+      - ACTIVITY_TYPE_ENUM=${ACTIVITY_TYPE_ENUM}
+    restart: on-failure
+    networks:
+      - temp-network
+  # my-react-app:
+  #   container_name: my-react-app
+  #   build: ./my-react-app
+  #   ports:
+  #     - "8080:8080"
+  #   env_file:
+  #     - ./my-react-app/.env.local
+  #   environment:
+  #     - NODE_ENV=production
+  #   networks:
+  #     - temp-network
+
+networks:
+  temp-network:
+    external: true
+
+volumes:
+  db_data:
+  mongo_data:

@@ -1,24 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const Activity = require('../models/activity').Activity
-const Details = require("../models/activity").Details
-const mongoose = require("mongoose")
-
-
-router.post('/', async (req, res) => {
-    try {
-        const activity = new Activity(req.body)
-        const newActivity = await activity.save()
-        res.status(201).json(newActivity)
-    } catch (err) {
-        if (err instanceof TypeError) {
-            res.status(400).send("Incorrect value types")
-        }
-        else {
-            res.status(400).json({ message: err.message })
-        }
-    } 
-})
+const Activity = require('../models/activity')
+const mongodb = require("mongodb")
 
 // Get all activities data
 router.get('/', async (req, res) => {
@@ -164,6 +147,22 @@ router.delete('/:id', async(req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
+})
+
+// Post Data to DB
+router.post('/', async (req, res) => {
+    try {
+        const activity = new Activity(req.body)
+        const newActivity = await activity.save()
+        res.status(201).json(newActivity)
+    } catch (err) {
+        if (err instanceof TypeError) {
+            res.status(400).send("Incorrect value types")
+        }
+        else {
+            res.status(400).json({ message: err.message })
+        }
+    } 
 })
 
 // Function to retrieve an activity for all users

@@ -48,7 +48,7 @@ const activitySchema = new mongoose.Schema({
         },
         itemType: {
             type: String,
-            enum: process.env.ACTIVITY_TYPE_ENUMACTIVITY_TYPE_ENUM.split(","),
+            enum: process.env.ITEM_TYPE_ENUM.split(","),
             required: true
         },
         details: [detailsSchema]

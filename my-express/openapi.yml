@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+  title: Activities API
+  description: API for managing activities
+  version: "1.0.0"
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: Activities
+    description: Activities management
+paths:
+  /:
+    get:
+      tags:
+        - Activities
+      summary: Get all activities data
+      responses:
+        '200':
+          description: A list of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Activities
+      summary: Create or update user activities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '201':
+          description: Activity created or updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '400':
+          description: Bad request if invalid data is provided
+  /getByItem/{itemId}:
+    get:
+      tags:
+        - Activities
+      summary: Get all activities that match the given itemId
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of activities matching the itemId
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '500':
+          description: Internal Server Error
+  /user/{userId}:
+    get:
+      tags:
+        - Activities
+      summary: Get activities by userid
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of activities for the specified user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+        '404':
+          description: User not found
+  /{id}:
+    get:
+      tags:
+        - Activities
+      summary: Get one activity data by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single activity data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '404':
+          description: Activity not found
+    put:
+      tags:
+        - Activities
+      summary: Update an individual activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+      responses:
+        '200':
+          description: Updated activity data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '404':
+          description: Activity not found
+    delete:
+      tags:
+        - Activities
+      summary: Delete an activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity deleted
+        '404':
+          description: Activity not found
+  /update/{id}:
+    put:
+      tags:
+        - Activities
+      summary: Update an activity response for a certain activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                activityResponse:
+                  type: string
+      responses:
+        '200':
+          description: Activity response updated
+components:
+  schemas:
+    Activity:
+      type: object
+      required:
+        - userId
+        - activity
+      properties:
+        userId:
+          type: string
+        activity:
+          type: object
+          required:
+            - courseId
+            - lessonId
+            - itemId
+            - itemType
+            - details
+          properties:
+            courseId:
+              type: integer
+            lessonId:
+              type: integer
+            itemId:
+              type: string
+            itemType:
+              type: string
+              enum: [Drill, Dialogue, Video, Vocabulary]
+            details:
+              type: array
+              items:
+                type: object
+                required:
+                  - timestamp
+                  - activityType
+                  - timeSpent
+                properties:
+                  timestamp:
+                    type: integer
+                  activityType:
+                    type: string
+                    enum: [Answer, Play, Pause, Skip, Resume, Restart]
+                  timeSpent:
+                    type: integer
+                  activityResponse:
+                    type: string
+                    default: ""

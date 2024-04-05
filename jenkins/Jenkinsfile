@@ -1,0 +1,121 @@
+pipeline {
+    agent {
+        docker {
+            image 'node:latest' 
+            args '-u root' 
+        }
+    }    
+    stages {
+        stage('Verify Jenkins Up') {
+            steps {
+
+                echo "BUILD_ID: ${env.BUILD_ID}"
+                echo "BUILD_NUMBER: ${env.BUILD_NUMBER}"
+                echo "BUILD_TAG: ${env.BUILD_TAG}"
+                echo "BUILD_URL: ${env.BUILD_URL}"
+                echo "EXECUTOR_NUMBER: ${env.EXECUTOR_NUMBER}"
+                echo "JENKINS_URL: ${env.JENKINS_URL}"
+                echo "JOB_NAME: ${env.JOB_NAME}"
+                echo "JOB_BASE_NAME: ${env.JOB_BASE_NAME}"
+                echo "JOB_URL: ${env.JOB_URL}"
+                echo "WORKSPACE: ${env.WORKSPACE}"
+                
+                // SCM-related information, if applicable
+                echo "GIT_COMMIT: ${env.GIT_COMMIT}"
+                echo "GIT_BRANCH: ${env.GIT_BRANCH}"
+                echo "GIT_URL: ${env.GIT_URL}"
+                
+                // Node and label information
+                echo "NODE_NAME: ${env.NODE_NAME}"
+                echo "NODE_LABELS: ${env.NODE_LABELS}"
+                
+                // Parameters, if any (Example parameter named PARAM_NAME)
+                // echo "PARAM_NAME: ${env.PARAM_NAME}"
+                
+                // Current user who triggered the build, if available
+                echo "BUILD_USER: ${env.BUILD_USER}"
+                echo "BUILD_USER_EMAIL: ${env.BUILD_USER_EMAIL}"
+                echo "BUILD_USER_ID: ${env.BUILD_USER_ID}"
+
+                script {
+                    // Execute a batch command to print all environment variables
+                    sh 'printenv'
+                }
+
+                script {
+
+                    if (env.GIT_BRANCH == 'verified_working') {
+                        echo "Running steps for branch: ${env.GIT_BRANCH}"
+                        try {
+                            sh 'node --version'
+                        } catch (Exception e) {
+                            echo "An error occurred: ${e.getMessage()}"
+                        }
+                    } else {
+                        echo "Skipping steps for branch: ${env.GIT_BRANCH}"
+                    }
+                }
+                script {
+                    sh 'ls -al'
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout([
+                        $class: 'GitSCM', 
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/Immersio-io/immersio-ingestion',
+                            credentialsId: '7f43d86b-8859-4ff5-81e7-27590c2dcffb'
+
+                        ]], 
+                        branches: [[
+                            name: "${env.GIT_BRANCH}"
+                        ]]
+                    ])                }
+                script {
+                    
+                    sh "ls -al"
+                }
+                echo "The workspace directory is ${env.WORKSPACE}"
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                dir('my-express') {
+                    script {
+                        sh 'npm install'
+                        sh 'npm install dotenv'
+                    }
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                dir('my-express') {
+                    script {
+                        try {
+                            sh 'npm run test1'
+                            sh 'npm run test2'
+                        } catch (Exception e) {
+                            echo "Tests failed: ${e.getMessage()}"
+                            throw e 
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always{
+            echo 'Job exited'
+        }
+        success {
+            echo 'Joy to the world, The build has passed QA'
+        }
+        failure {
+            echo 'Build failed, please read console output for further details'
+        }
+    }
+}

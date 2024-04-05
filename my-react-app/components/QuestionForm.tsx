@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import activityData from "@/types/activity"
 import { Button } from "./ui/button";
 import axios from "axios";
@@ -14,56 +14,59 @@ export default function Question() {
       lessonId: 5,
       itemId: "A-1",
       itemType: "Vocabulary",
-      details: {
-        1: {
-          timestamp: Date.now(),
-          activityType: 'Answer',
-          timeSpent: 0, 
-          activityResponse: '', 
-        }
-      }
+      details: [{
+        timestamp: Date.now(),
+        activityType: 'Answer',
+        timeSpent: 0,
+        activityResponse: 'Correct', 
+      }]
     }
-  }
-  );
+  });
 
-  const[startingTime, setStartingTime] = useState(Date.now());
+  const startingTime = useRef(Date.now());
+
+  function convertToUTC(timestamp: number) {
+    const date = new Date(timestamp);
+    return date.toUTCString();
+  }
 
   function updateActivityTimeSpent(detailId: number) {
     setActivity(prev => {
-      const startTime  = startingTime;
+      const startTime = startingTime.current;
       const endTime = Date.now();
       const timeSpent = endTime - startTime;
-
-      const updatedDetails = {
-        ...prev.activity.details,
-        [detailId]: {
-          ...prev.activity.details[detailId],
-          timeSpent,
-          timestamp: endTime
-        }
-      }
+      
+      //@ts-ignore
+      const updatedDetails = prev.activity.details.slice(); 
+      updatedDetails[detailId] = { 
+        ...updatedDetails[detailId],
+        timeSpent,
+        timestamp: endTime,
+      };
+  
       return {
         ...prev,
         activity: {
           ...prev.activity,
           details: updatedDetails
         }
-      }
-    })
+      };
+    });
   }
+  
 
   function handleResponse(type: string) {
-    const latestDetailId = Object.keys(activity.activity.details).length;
-    // @ts-ignore
     setActivity(prev => {
-      const updatedDetails = {
-        ...prev.activity.details,
-        [latestDetailId]: {
-          ...prev.activity.details[latestDetailId],
-          activityResponse: type,
-        },
+      const newDetail = {
+        activityType: 'Answer',
+        activityResponse: type,
+        timestamp: Date.now(), 
+        timeSpent: 0, 
       };
-
+      
+      // @ts-ignore
+      const updatedDetails = [...prev.activity.details, newDetail]; // Append the new detail
+  
       return {
         ...prev,
         activity: {
@@ -73,6 +76,8 @@ export default function Question() {
       };
     });
 
+    //@ts-ignore
+    const latestDetailId = activity.activity.details.length;
     updateActivityTimeSpent(latestDetailId); 
     console.log(activity);
   }
@@ -88,7 +93,9 @@ export default function Question() {
     }
 
     try {
-      await axios.post(`${apiUrl}/info`, updatedActivity)
+      axios.put(`${apiUrl}/info`, updatedActivity)
+      startingTime.current = Date.now();
+      console.log('Activity submitted:', updatedActivity)
     } catch (error) {
         console.error('Error submitting:', error)
       }

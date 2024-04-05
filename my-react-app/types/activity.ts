@@ -1,7 +1,8 @@
 type ActivityDetail = {
-    timestamp: number; // Assuming Date.now() returns a timestamp in milliseconds
-    activityType: 'Answer' | 'Play' | 'Pause' | 'Skip' | 'Resume' | 'Restart';
+    timestamp: number;
+    activityType: 'Answer' | 'Play' | 'Pause' | 'Skip' | 'Resume' | 'Replay';
     timeSpent: number;
+    videoTime?: number,
     activityResponse?: string; 
 }
 

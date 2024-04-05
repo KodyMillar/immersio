@@ -11,7 +11,7 @@ app.use(express.static('public'));
 app.get('/generateData', async (req, res) => {
     const randomData = generateUserActivity();
     try {
-        await axios.post('http://localhost:3001/info', randomData) //URL for post data into DB
+        await axios.post('http://127.0.0.1:3001/info', randomData) //URL for post data into DB *** localhost:3001/info URL makes connection error to the server, So I changed to 127.0.0.1 *** 
     } catch (error) {
         console.error("ERROR!!!!", error.message)
     }

@@ -102,11 +102,15 @@ pipeline {
         stage('Install OpenSSL') {
             steps {
                 sh 'apt-get update && apt-get install -y libssl-dev'
-                sh '$PATH = $PATH:/lib/x86_64-linux-gnu/'
-                sh 'echo $PATH'
             }
         }
-
+        stage('Set Library Path') {
+            steps {
+                script {
+                    sh 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu'
+                }
+            }
+        }
         stage('Print ld.so.cache') {
             steps {
                 sh 'cat /etc/ld.so.cache'

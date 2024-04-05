@@ -83,20 +83,7 @@ pipeline {
         }
         stage('Install OpenSSL') {
             steps {
-                // Install OpenSSL library based on the operating system of the Jenkins agent
-                sh '''
-                if [ -x "$(command -v apt-get)" ]; then
-                    sudo apt-get update
-                    sudo apt-get install -y libssl-dev
-                elif [ -x "$(command -v yum)" ]; then
-                    sudo yum install -y openssl-devel
-                elif [ -x "$(command -v brew)" ]; then
-                    brew install openssl
-                else
-                    echo "Unsupported operating system"
-                    exit 1
-                fi
-                '''
+                sh 'apt-get update && apt-get install -y libssl-dev'
             }
         }
         stage('Install Dependencies') {

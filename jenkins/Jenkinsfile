@@ -104,6 +104,12 @@ pipeline {
                 sh 'apt-get update && apt-get install -y libssl-dev' // Install OpenSSL library
             }
         }
+
+        stage('Print ld.so.cache') {
+            steps {
+                sh 'cat /etc/ld.so.cache'
+            }
+        }
         stage('Install Dependencies') {
             steps {
                 dir('my-express') {

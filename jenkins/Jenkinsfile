@@ -92,11 +92,16 @@ pipeline {
 
                     sh 'echo "Library Paths (ldd):"'
                     sh 'ldd --version'
-                    
+
                     sh 'echo "Node.js Paths:"'
                     sh 'which node'
                     sh 'node --version'
                 }
+            }
+        }
+        stage('Install OpenSSL') {
+            steps {
+                sh 'apt-get update && apt-get install -y libssl-dev' // Install OpenSSL library
             }
         }
         stage('Install Dependencies') {

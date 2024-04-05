@@ -101,14 +101,8 @@ pipeline {
         }
         stage('Install OpenSSL') {
             steps {
-                sh 'apt-get update && apt-get install -y libssl-dev'
-            }
-        }
-        stage('Set Library Path') {
-            steps {
-                script {
-                    sh 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu'
-                }
+                sh 'wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb'
+                sh 'dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb'
             }
         }
         stage('Install Dependencies') {

@@ -111,11 +111,6 @@ pipeline {
                 }
             }
         }
-        stage('Print ld.so.cache') {
-            steps {
-                sh 'cat /etc/ld.so.cache'
-            }
-        }
         stage('Install Dependencies') {
             steps {
                 dir('my-express') {

@@ -81,9 +81,22 @@ pipeline {
                 echo "The workspace directory is ${env.WORKSPACE}"
             }
         }
-        stage('Install OpenSSL') {
+        stage('Print Paths') {
             steps {
-                sh 'apt-get update && apt-get install -y libssl-dev'
+                script {
+                    sh 'echo "Environment Variables:"'
+                    sh 'printenv'
+
+                    sh 'echo "Library Paths (ldconfig):"'
+                    sh 'ldconfig -p'
+
+                    sh 'echo "Library Paths (ldd):"'
+                    sh 'ldd --version'
+                    
+                    sh 'echo "Node.js Paths:"'
+                    sh 'which node'
+                    sh 'node --version'
+                }
             }
         }
         stage('Install Dependencies') {
@@ -93,7 +106,6 @@ pipeline {
                         sh 'npm install -g n'
                         sh 'n 20.5.1'
                         sh 'npm install dotenv'
-                        sh 'npm install openssl'
                     }
                 }
             }

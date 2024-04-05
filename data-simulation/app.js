@@ -1,36 +1,46 @@
 const express = require('express');
 const { faker } = require('@faker-js/faker');
 const path = require('path')
+const axios = require('axios')
 
 const app = express();
 const port = 3010;
 
 app.use(express.static('public'));
 
-app.get('/generateData', (req, res) => {
+app.get('/generateData', async (req, res) => {
     const randomData = generateUserActivity();
+    try {
+        await axios.post('http://localhost:3001/info', randomData) //URL for post data into DB
+    } catch (error) {
+        console.error("ERROR!!!!", error.message)
+    }
     startRandomInterval();
     res.json(randomData);
 });
 
 function generateUserActivity() {
+    const itemType = faker.helpers.arrayElement(['Drill', 'Dialogue', 'Vocabulary', 'Video']);
+    const activityType = (itemType === 'Video' || itemType === 'Dialogue') ? faker.helpers.arrayElement(['Play', 'Pause', 'Restart']) : faker.helpers.arrayElement(['Answer', 'Skip']);
+    const activityResponse = (activityType ==='Answer') ? faker.helpers.arrayElement(['Correct','Incorrect']) : faker.helpers.arrayElement([""])
+    
     const data = {
         userId: faker.string.uuid(),
         activity: {
-            timestamp: faker.date.past(),
-            itemType: faker.helpers.arrayElement(['Drill', 'Dialogue', 'Vocabulary', 'Video']),
+            itemType: itemType,
             itemId: faker.string.uuid(),
-            courseID: faker.number.int(100),
-            lessonID: faker.number.int(100),
-            details: {
+            courseId: faker.number.int(100),
+            lessonId: faker.number.int(100),
+            details: [{
                  
-                    timestamp: faker.date.past(),
-                    activityType: faker.helpers.arrayElement(['Answer', 'Play', 'Pause', 'Skip', 'Resume', 'Restart']),
+                    timestamp: faker.date.past().getTime(),
+                    activityType: activityType,
+                    videoTime: faker.number.int(1000),
                     timeSpent: faker.number.int(1000000),
-                    activityResponse: faker.helpers.arrayElement(['Correct', 'Incorrect',''])
+                    activityResponse: activityResponse
                     
                 
-            },
+            }],
         },
     };
     return data;

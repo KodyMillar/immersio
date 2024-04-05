@@ -57,15 +57,18 @@ export default function Question() {
 
   function handleResponse(type: string) {
     setActivity(prev => {
-      const newDetail = {
-        activityType: 'Answer',
-        activityResponse: type,
-        timestamp: Date.now(), 
-        timeSpent: 0, 
-      };
+      //@ts-ignore
+      const updatedDetails = prev.activity.details.slice(); 
       
-      // @ts-ignore
-      const updatedDetails = [...prev.activity.details, newDetail]; // Append the new detail
+      // Check if there are any details to update
+      if (updatedDetails.length > 0) {
+        // Update the last detail's activityResponse
+        const lastDetailIndex = updatedDetails.length - 1;
+        updatedDetails[lastDetailIndex] = {
+          ...updatedDetails[lastDetailIndex],
+          activityResponse: type,
+        };
+      }
   
       return {
         ...prev,
@@ -75,11 +78,6 @@ export default function Question() {
         },
       };
     });
-
-    //@ts-ignore
-    const latestDetailId = activity.activity.details.length;
-    updateActivityTimeSpent(latestDetailId); 
-    console.log(activity);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

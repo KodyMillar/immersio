@@ -9,7 +9,9 @@ export default function VideoForm() {
     const videoRef = useRef<HTMLVideoElement>(null);
     // const [startingTime, setStartingTime] = useState(Date.now());
     const startingTime = useRef(Date.now());
-    const playType = useRef("Play");
+    // const playType = useRef("Play");
+    const playType = useRef<"Play" | "Answer" | "Pause" | "Skip" | "Resume" | "Replay">("Play");
+    playType.current = "Play";
     const videoTimeRef = useRef([[0, 0]]);
     let videoTimeInterval: any;
     let currentVideoTimeIndex = 0;
@@ -28,20 +30,6 @@ export default function VideoForm() {
               }]
         }
     })
-    // const [activity, setActivity] = useState<activityData>({
-    //     userId: 'Woody',
-    //     activity: {
-    //         courseId: 3855,
-    //         lessonId: 2,
-    //         itemId: "B-2",
-    //         itemType: "Video",
-    //         details: [{
-    //             timestamp: Date.now(),
-    //             activityType: 'Answer',
-    //             timeSpent: 0,
-    //           }]
-    //     }
-    // });
 
     const handleVideoEvent = (event: any) => {
         if (!videoTimeInterval) {
@@ -50,25 +38,11 @@ export default function VideoForm() {
         }
  
         let activityType = playType.current;
+        console.log(activityType)
         const endTime = Date.now();
         const startTime = startingTime.current;
         const timeSpent = endTime - startTime;
         const videoTime = videoRef.current?.currentTime;
-        
-        // setActivity(prevActivity => {
-        //     const updatedActivity = {
-        //         ...prevActivity,
-        //         activity: {
-        //             ...prevActivity.activity,
-        //             details: [
-        //                 {
-        //                     timestamp: endTime,
-        //                     activityType: type.charAt(0).toUpperCase() + type.slice(1),
-        //                     timeSpent: timeSpent
-        //                 }
-        //             ]
-        //         }
-        //     };
 
         activityRef.current.activity.details = [
             {
@@ -161,10 +135,12 @@ export default function VideoForm() {
 
     // Keep track of parts of the video the user has watched
     const trackWatched = () => {
-
+        console.log(videoTimeRef.current);
         // Increase range only when current video time is larger than the range
-        if (videoRef.current.currentTime > videoTimeRef.current[currentVideoTimeIndex][1]) {
-            videoTimeRef.current[currentVideoTimeIndex][1] = videoRef.current.currentTime;
+        if (videoRef.current) {
+            if (videoRef.current.currentTime > videoTimeRef.current[currentVideoTimeIndex][1]) {
+                videoTimeRef.current[currentVideoTimeIndex][1] = videoRef.current.currentTime;
+            }
         }
         
         // Merge watched ranges if they overlap
@@ -179,38 +155,43 @@ export default function VideoForm() {
 
     const setCurrentVideoTimeIndex = () => {
         for (let i=0; i < videoTimeRef.current.length; i++) {
-            if (videoRef.current.currentTime > videoTimeRef.current[i][1]) {
-                if (videoTimeRef.current.length === i + 1) {
-                    currentVideoTimeIndex = i + 1;
-                    videoTimeRef.current.push([videoRef.current.currentTime, videoRef.current.currentTime])
-                    playType.current = playType.current !== "Play" ? "Resume" : "Play";
-                    break;
+            if (videoRef.current) {
+                if (videoRef.current.currentTime > videoTimeRef.current[i][1]) {
+                    if (videoTimeRef.current.length === i + 1) {
+                        currentVideoTimeIndex = i + 1;
+                        videoTimeRef.current.push([videoRef.current.currentTime, videoRef.current.currentTime])
+                        playType.current = playType.current !== "Play" ? "Resume" : "Play";
+                        break;
+                    }
+                    else if (videoRef.current.currentTime < videoTimeRef.current[i+1][0]) {
+                        currentVideoTimeIndex = i + 1;
+                        videoTimeRef.current.splice(currentVideoTimeIndex, 0, [videoRef.current?.currentTime, videoRef.current.currentTime])
+                        playType.current = playType.current !== "Play" ? "Resume" : "Play";
+                        break;
+                    }
                 }
-                else if (videoRef.current.currentTime < videoTimeRef.current[i+1][0]) {
-                    currentVideoTimeIndex = i + 1;
-                    videoTimeRef.current.splice(currentVideoTimeIndex, 0, [videoRef.current?.currentTime, videoRef.current.currentTime])
-                    playType.current = playType.current !== "Play" ? "Resume" : "Play";
-                    break;
+    
+                else if (videoRef.current.currentTime < videoTimeRef.current[i][0]) {
+                    if (i === 0) {
+                        currentVideoTimeIndex = 0;
+                        videoTimeRef.current.unshift([videoRef.current.currentTime, videoRef.current.currentTime]);
+                        break;
+                    }
                 }
-            }
 
-            else if (videoRef.current.currentTime < videoTimeRef.current[i][0]) {
-                if (i === 0) {
-                    currentVideoTimeIndex = 0;
-                    videoTimeRef.current.unshift([videoTimeRef.current, videoTimeRef.current]);
+                else {
+                    currentVideoTimeIndex = i;
+                    if (videoRef.current) {
+                        if (playType.current !== "Play" && videoRef.current!.currentTime !== videoTimeRef.current[currentVideoTimeIndex][1]) {
+                            playType.current = "Replay";
+                        } 
+                        else if (playType.current !== "Play") {
+                            playType.current = "Resume"
+                        }
+
+                    }
                     break;
                 }
-            }
-
-            else {
-                currentVideoTimeIndex = i;
-                if (playType.current !== "Play" && videoRef.current.currentTime != videoTimeRef.current[currentVideoTimeIndex][1]) {
-                    playType.current = "Replay";
-                }
-                else if (playType.current !== "Play") {
-                    playType.current = "Resume"
-                }
-                break;
             }
         }
     }

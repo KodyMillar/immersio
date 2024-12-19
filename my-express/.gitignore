@@ -91,3 +91,6 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+# Gitignore file
+.gitignore

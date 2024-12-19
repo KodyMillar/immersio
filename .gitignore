@@ -1,2 +1,7 @@
+.gitignore
+
 ingestion-key.pem
 note.txt
+
+/.vscode/
+/data-simulation/node_modules/
